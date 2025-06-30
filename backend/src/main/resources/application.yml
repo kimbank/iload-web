@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: iload-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create-drop}
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+  jwt:
+    secret: ${SPRING_JWT_SECRET:defaultSecret}
+    access-expiration: ${SPRING_JWT_ACCESS_EXPIRATION:1800}
+    refresh-expiration: ${SPRING_JWT_REFRESH_EXPIRATION:25200}
