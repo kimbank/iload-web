@@ -1,9 +1,12 @@
 package dev.kimbank.iload.global.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,8 +39,15 @@ public class JwtFilter extends OncePerRequestFilter {
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (ExpiredJwtException e) {
+                handleException(response, "Token has expired", HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            } catch (MalformedJwtException e) {
+                handleException(response, "Invalid token format", HttpServletResponse.SC_FORBIDDEN);
+                return;
             } catch (Exception e) {
-                // Handle invalid token
+                handleException(response, "Authentication failed", HttpServletResponse.SC_FORBIDDEN);
+                return;
             }
         }
         filterChain.doFilter(request, response);
@@ -49,5 +59,11 @@ public class JwtFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    private void handleException(HttpServletResponse response, String message, int statusCode) throws IOException {
+        response.setStatus(statusCode);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(String.format("{\"error\":\"Authentication failed\",\"message\":\"%s\"}", message));
     }
 }
