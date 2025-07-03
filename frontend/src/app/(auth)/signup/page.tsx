@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { postUsersSignup } from "@/api/postUsersSignup";
 import { useCheckUsername } from "@/api/hooks/useCheckUsername";
+import { CompleteAlertDialog } from "./complete-alert-dialog"; // Adjust the import path as necessary
 
 export default function SignupPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [usernameToCheck, setUsernameToCheck] = useState("");
+  const [completeAlertDialogOpen, setCompleteAlertDialogOpen] = useState(false);
 
   // 닉네임 중복 체크 (디바운싱)
   useEffect(() => {
@@ -33,7 +35,8 @@ export default function SignupPage() {
     return () => clearTimeout(timer);
   }, [formData.username]);
 
-  const { data: usernameCheck, isLoading: isCheckingUsername } = useCheckUsername(usernameToCheck);
+  const { data: usernameCheck, isLoading: isCheckingUsername } =
+    useCheckUsername(usernameToCheck);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,7 +73,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
@@ -81,9 +84,9 @@ export default function SignupPage() {
         username: formData.username,
         password: formData.password,
       });
-      
+
       if (response.status === 200 || response.status === 201) {
-        router.push("/signin");
+        setCompleteAlertDialogOpen(true);
       } else {
         setError("회원가입에 실패했습니다. 다시 시도해주세요.");
       }
@@ -96,24 +99,36 @@ export default function SignupPage() {
 
   const getUsernameStatus = () => {
     if (!formData.username) return null;
-    if (formData.username.length < 3) return { color: "text-gray-500", message: "아이디는 3글자 이상이어야 합니다." };
-    if (isCheckingUsername) return { color: "text-gray-500", message: "중복 확인 중..." };
-    if (usernameCheck?.available) return { color: "text-green-600", message: "사용 가능한 아이디입니다." };
-    if (usernameCheck && !usernameCheck.available) return { color: "text-red-500", message: "이미 사용 중인 아이디입니다." };
+    if (formData.username.length < 3)
+      return {
+        color: "text-gray-500",
+        message: "아이디는 3글자 이상이어야 합니다.",
+      };
+    if (isCheckingUsername)
+      return { color: "text-gray-500", message: "중복 확인 중..." };
+    if (usernameCheck?.available)
+      return { color: "text-green-600", message: "사용 가능한 아이디입니다." };
+    if (usernameCheck && !usernameCheck.available)
+      return { color: "text-red-500", message: "이미 사용 중인 아이디입니다." };
     return null;
   };
 
   const usernameStatus = getUsernameStatus();
-  const isFormValid = formData.username && 
-                     formData.password && 
-                     formData.confirmPassword &&
-                     formData.username.length >= 3 &&
-                     formData.password.length >= 6 &&
-                     formData.password === formData.confirmPassword &&
-                     usernameCheck?.available;
+  const isFormValid =
+    formData.username &&
+    formData.password &&
+    formData.confirmPassword &&
+    formData.username.length >= 3 &&
+    formData.password.length >= 6 &&
+    formData.password === formData.confirmPassword &&
+    usernameCheck?.available;
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* 회원가입 완료 모달 */}
+      <CompleteAlertDialog
+        isOpen={completeAlertDialogOpen}
+      />
       {/* 메인 컨텐츠 */}
       <main className="flex-1 flex items-center justify-center pt-14 px-6 py-8">
         <div className="w-full max-w-sm space-y-6">
@@ -168,9 +183,12 @@ export default function SignupPage() {
                 required
                 disabled={loading}
               />
-              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <p className="text-xs text-red-500">비밀번호가 일치하지 않습니다.</p>
-              )}
+              {formData.confirmPassword &&
+                formData.password !== formData.confirmPassword && (
+                  <p className="text-xs text-red-500">
+                    비밀번호가 일치하지 않습니다.
+                  </p>
+                )}
             </div>
 
             {error && (
@@ -188,7 +206,10 @@ export default function SignupPage() {
 
           <div className="text-center text-sm">
             <span className="text-gray-600">이미 계정이 있으신가요? </span>
-            <Link href="/signin" className="text-black font-medium hover:underline">
+            <Link
+              href="/signin"
+              className="text-black font-medium hover:underline"
+            >
               로그인
             </Link>
           </div>
