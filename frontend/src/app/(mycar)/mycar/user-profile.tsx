@@ -26,10 +26,8 @@ export default function UserProfile() {
     } catch (error) {
       console.error("Failed to sign out from server", error);
     } finally {
-      setTimeout(() => {
-        signout();
-      }, 200);
       router.push("/");
+      signout();
     }
   };
 
