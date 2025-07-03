@@ -6,13 +6,13 @@ import { useAuthStore } from "@/store/auth";
 
 const path = "/api/auth/signin";
 
-interface UsersSigninRequest {
+interface AuthSigninRequest {
   username: string;
   password: string;
 }
 
 export const postAuthSignin = async (
-  requestBody: UsersSigninRequest
+  requestBody: AuthSigninRequest
 ): Promise<AxiosResponse> => {
   const res = await plainAxios.post(`${path}`, requestBody);
 

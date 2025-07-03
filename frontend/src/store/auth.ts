@@ -18,7 +18,12 @@ type AuthStore = {
   nickname: string | null;
   setNickname: (nickname: string) => void;
 
-  signin: (accessToken: string, refreshToken: string, username: string, nickname: string) => void;
+  signin: (
+    accessToken: string,
+    refreshToken: string,
+    username: string,
+    nickname: string
+  ) => void;
 
   signout: () => void;
 };
@@ -32,7 +37,10 @@ export const useAuthStore = create(
       refreshToken: "",
       setRefreshToken: (refreshToken: string) => set({ refreshToken }),
 
-      isAuthenticated: true,
+      get isAuthenticated() {
+        const { accessToken, refreshToken } = get();
+        return !!accessToken && !!refreshToken;
+      },
 
       username: null,
       setUsername: (username: string) => set({ username }),
@@ -40,12 +48,22 @@ export const useAuthStore = create(
       nickname: null,
       setNickname: (nickname: string) => set({ nickname }),
 
-      signin: (accessToken: string, refreshToken: string, username: string, nickname: string) => {
-        set({ accessToken, refreshToken, isAuthenticated: true, username, nickname });
+      signin: (
+        accessToken: string,
+        refreshToken: string,
+        username: string,
+        nickname: string
+      ) => {
+        set({
+          accessToken,
+          refreshToken,
+          username,
+          nickname,
+        });
       },
 
       signout: () => {
-        set({ accessToken: "", refreshToken: "", isAuthenticated: false });
+        set({ accessToken: "", refreshToken: ""});
       },
     }),
     {

@@ -15,7 +15,7 @@ export function CompleteAlertDialog({ isOpen }: { isOpen: boolean }) {
     <AlertDialog open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>로그인이 완료되었습니다.</AlertDialogTitle>
+          <AlertDialogTitle>회원가입이 완료되었습니다.</AlertDialogTitle>
           <AlertDialogDescription>
             로그인 페이지로 이동하시겠습니까?
           </AlertDialogDescription>

@@ -3,17 +3,17 @@ import { AuthedAxios } from "@/api/base/axiosInstance";
 
 const path = "/api/auth/signout";
 
-interface UsersSignupRequest {
+interface AuthSignoutRequest {
   accessToken: string;
   refreshToken: string;
 }
 
-export const postUsersSignout = async (
-  requestBody: UsersSignupRequest
+export const postAuthSignout = async (
+  requestBody: AuthSignoutRequest
 ): Promise<AxiosResponse> => {
   const res = await AuthedAxios.post(`${path}`, requestBody);
 
   return res;
 };
 
-export default postUsersSignout;
+export default postAuthSignout;

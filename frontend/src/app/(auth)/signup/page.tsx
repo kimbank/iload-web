@@ -63,6 +63,11 @@ export default function SignupPage() {
       return false;
     }
 
+    if (isCheckingUsername) {
+      setError("아이디 중복 확인을 기다려주세요.");
+      return false;
+    }
+
     if (usernameCheck && !usernameCheck.available) {
       setError("이미 사용 중인 아이디입니다.");
       return false;

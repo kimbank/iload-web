@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import useAuthStore from "@/store/auth";
-import { postUsersSignout } from "@/api/postAuthSignout";
+import { postAuthSignout } from "@/api/postAuthSignout";
 import { useRouter } from "next/navigation";
 
 export default function UserProfile() {
@@ -22,7 +22,7 @@ export default function UserProfile() {
 
   const handleSignout = async () => {
     try {
-      await postUsersSignout({ accessToken, refreshToken });
+      await postAuthSignout({ accessToken, refreshToken });
     } catch (error) {
       console.error("Failed to sign out from server", error);
     } finally {
