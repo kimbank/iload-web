@@ -68,7 +68,8 @@ public class SecurityConfig {
 
         // 비회원도 접근 가능한 REST API 경로
         paths.addAll(Arrays.asList(
-                "/api/auth/**",
+                "/api/auth/signin",
+                "/api/auth/token-refresh",
                 "/api/users/check-username",
                 "/api/users/signup"
         ));
@@ -77,6 +78,7 @@ public class SecurityConfig {
         paths.addAll(Arrays.asList(
                 "/api/docs/**",
                 "/api/swagger-ui/**",
+                "/api/v3/api-docs.yaml",
                 "/api/v3/api-docs/**"
         ));
 

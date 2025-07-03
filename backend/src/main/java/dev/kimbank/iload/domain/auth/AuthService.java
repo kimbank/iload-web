@@ -44,7 +44,7 @@ public class AuthService {
         session.setRevoked(false);
         sessionRepository.save(session);
 
-        return new SigninResponse(accessToken, refreshToken);
+        return new SigninResponse(accessToken, refreshToken, user.getUsername());
     }
 
     @Transactional
