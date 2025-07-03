@@ -11,4 +11,5 @@ import java.io.Serializable;
 public class SigninResponse implements Serializable {
     String accessToken;
     String refreshToken;
+    String username;
 }
