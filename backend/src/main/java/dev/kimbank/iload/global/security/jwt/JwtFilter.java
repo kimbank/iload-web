@@ -1,15 +1,12 @@
-package dev.kimbank.iload.global.jwt;
+package dev.kimbank.iload.global.security.jwt;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
+import dev.kimbank.iload.global.security.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -20,11 +17,9 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
-    private final UserDetailsService userDetailsService;
 
-    public JwtFilter(JwtProvider jwtProvider, UserDetailsService userDetailsService) {
+    public JwtFilter(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -33,21 +28,22 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
         if (token != null) {
             try {
+                // JWT에서 ID만 추출 (DB 조회 없음)
                 Long userId = jwtProvider.getUserIdFromToken(token, true);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userId.toString());
+
+                // 최소 정보만으로 CustomUserDetails 생성
+                CustomUserDetails userDetails = new CustomUserDetails(userId);
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (ExpiredJwtException e) {
-                handleException(response, "Token has expired", HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            } catch (MalformedJwtException e) {
-                handleException(response, "Invalid token format", HttpServletResponse.SC_FORBIDDEN);
-                return;
             } catch (Exception e) {
-                handleException(response, "Authentication failed", HttpServletResponse.SC_FORBIDDEN);
-                return;
+                // Handle invalid token
+                logger.debug("Invalid JWT token: " + e.getMessage());
+
+                // Clear any partial authentication state
+                SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);
@@ -59,11 +55,5 @@ public class JwtFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
-    }
-
-    private void handleException(HttpServletResponse response, String message, int statusCode) throws IOException {
-        response.setStatus(statusCode);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(String.format("{\"error\":\"Authentication failed\",\"message\":\"%s\"}", message));
     }
 }
