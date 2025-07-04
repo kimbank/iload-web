@@ -17,11 +17,9 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
-    private final UserDetailsService userDetailsService;
 
-    public JwtFilter(JwtProvider jwtProvider, UserDetailsService userDetailsService) {
+    public JwtFilter(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -42,6 +40,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
                 // Handle invalid token
+                logger.debug("Invalid JWT token: " + e.getMessage());
+
+                // Clear any partial authentication state
+                SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);

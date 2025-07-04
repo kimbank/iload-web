@@ -15,8 +15,8 @@ public class CustomUserDetails implements UserDetails {
     private final String password; // null
 
     // JWT 토큰용 생성자 (ID만 포함)
-    public CustomUserDetails(Long memberId) {
-        this.userId = memberId;
+    public CustomUserDetails(Long userId) {
+        this.userId = userId;
         this.username = null;
         this.password = null;
     }
