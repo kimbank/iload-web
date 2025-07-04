@@ -1,6 +1,6 @@
 package dev.kimbank.iload.config;
 
-import dev.kimbank.iload.global.jwt.JwtFilter;
+import dev.kimbank.iload.global.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

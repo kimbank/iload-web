@@ -1,4 +1,4 @@
-package dev.kimbank.iload.global.jwt;
+package dev.kimbank.iload.global.security;
 
 import org.springframework.stereotype.Component;
 
