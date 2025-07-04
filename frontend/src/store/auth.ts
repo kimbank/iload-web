@@ -30,17 +30,14 @@ type AuthStore = {
 
 export const useAuthStore = create(
   persist<AuthStore>(
-    (set, get) => ({
+    (set) => ({
       accessToken: "",
       setAccessToken: (accessToken: string) => set({ accessToken }),
 
       refreshToken: "",
       setRefreshToken: (refreshToken: string) => set({ refreshToken }),
 
-      get isAuthenticated() {
-        const { accessToken, refreshToken } = get();
-        return !!accessToken && !!refreshToken;
-      },
+      isAuthenticated: false,
 
       username: null,
       setUsername: (username: string) => set({ username }),
@@ -59,11 +56,18 @@ export const useAuthStore = create(
           refreshToken,
           username,
           nickname,
+          isAuthenticated: true,
         });
       },
 
       signout: () => {
-        set({ accessToken: "", refreshToken: ""});
+        set({
+          accessToken: "",
+          refreshToken: "",
+          username: null,
+          nickname: null,
+          isAuthenticated: false,
+        });
       },
     }),
     {
