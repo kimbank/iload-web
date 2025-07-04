@@ -29,8 +29,9 @@ public class RegisteredVehicle {
     @Comment("작성 유저 ID")
     private Users users;
 
-    @Comment("제조 기업")
+    @Enumerated(EnumType.STRING)
     @Column(name = "manufacturer")
+    @Comment("제조 기업")
     private ManufacturerEnum manufacturer;
 
     @Enumerated(EnumType.STRING)
@@ -46,6 +47,7 @@ public class RegisteredVehicle {
     @Comment("승차 인원")
     private Integer seaterCount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "fuel_type")
     @Comment("연료")
     private FuelTypeEnum fuelType;
@@ -58,6 +60,7 @@ public class RegisteredVehicle {
     @Comment("차량 번호 ex) 123가 4567")
     private String vehicleNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "manufacture_country")
     @Comment("제조 국가")
     private ManufactureCountryEnum manufactureCountry;
@@ -82,22 +85,27 @@ public class RegisteredVehicle {
     @Comment("제조 년도")
     private Integer manufactureYear;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "accident_info")
     @Comment("사고 정보")
     private AccidentInfoEnum accidentInfo;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "repainted")
     @Comment("도색 여부")
     private RepaintedEnum repainted;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "drive_type")
     @Comment("구동 방식")
     private DriveTypeEnum driveType;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "transmission")
     @Comment("변속기")
     private TransmissionEnum transmission;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "color")
     @Comment("색상")
     private ColorEnum color;
@@ -106,14 +114,17 @@ public class RegisteredVehicle {
     @Comment("최초 등록")
     private LocalDateTime initialRegistrationDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "special_use_history")
     @Comment("특수 사용 이력")
     private SpecialUseHistoryEnum specialUseHistory;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "special_modification_history")
     @Comment("특수 개조 내역")
     private SpecialModificationHistoryEnum specialModificationHistory;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "option_info")
     @Comment("옵션 정보")
     private OptionInfoEnum optionInfo;

@@ -52,9 +52,7 @@ class VehicleService {
         RegisteredVehicle vehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
-        if (!vehicle.getUsers().getId().equals(userId)) {
-            throw new IllegalArgumentException("해당 차량은 조회할 수 없습니다.");
-        }
+        validateOwnership(vehicle, userId);
 
         return vehicle;
     }
@@ -64,9 +62,7 @@ class VehicleService {
         RegisteredVehicle existingVehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
-        if (!existingVehicle.getUsers().getId().equals(userId)) {
-            throw new IllegalArgumentException("해당 차량은 수정할 수 없습니다.");
-        }
+        validateOwnership(existingVehicle, userId);
 
         registeredVehicleRepository.save(existingVehicle);
     }
@@ -77,9 +73,7 @@ class VehicleService {
         RegisteredVehicle existingVehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
-        if (!existingVehicle.getUsers().getId().equals(userId)) {
-            throw new IllegalArgumentException("해당 차량은 수정할 수 없습니다.");
-        }
+        validateOwnership(existingVehicle, userId);
 
         modelMapper.map(request, existingVehicle);
 
@@ -92,12 +86,16 @@ class VehicleService {
         RegisteredVehicle existingVehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
-        if (!existingVehicle.getUsers().getId().equals(userId)) {
-            throw new IllegalArgumentException("해당 차량은 수정할 수 없습니다.");
-        }
+        validateOwnership(existingVehicle, userId);
 
         modelMapper.map(request, existingVehicle);
 
         registeredVehicleRepository.save(existingVehicle);
+    }
+
+    private void validateOwnership(RegisteredVehicle vehicle, Long userId) {
+        if (!vehicle.getUsers().getId().equals(userId)) {
+            throw new IllegalArgumentException("해당 차량에 대한 권한이 없습니다.");
+        }
     }
 }
