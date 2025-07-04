@@ -1,6 +1,5 @@
-package dev.kimbank.iload.domain.users.entity;
+package dev.kimbank.iload.domain.vehicle.entity;
 
-import dev.kimbank.iload.domain.vehicle.entity.RegisteredVehicle;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,27 +8,21 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
-public class Users {
+@Table(name = "vehicle_registration_certificate")
+public class VehicleRegistrationCertificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "users_id", nullable = false, unique = true)
+    @Column(name = "vehicle_registration_certificate_id", nullable = false)
     private Long id;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
-
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Comment("차량 등록 정보")
-    private List<RegisteredVehicle> registeredVehicles;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "registered_vehicle_id", nullable = false)
+    @Comment("차량 등록 테이블 ID")
+    private RegisteredVehicle registeredVehicle;
 
     @CreationTimestamp
     @Column(name = "created_at")
