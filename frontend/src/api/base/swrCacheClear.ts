@@ -1,3 +1,5 @@
+"use client";
+
 import { useSWRConfig } from "swr";
 
 export const swrCacheClear = () => {
@@ -10,9 +12,9 @@ export const swrCacheClear = () => {
       undefined,
       { revalidate: false }
     );
-  };
+  }
 
-  return { clearCache };
+  clearCache();
 }
 
 export default swrCacheClear;

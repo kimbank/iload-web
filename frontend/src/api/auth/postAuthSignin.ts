@@ -4,7 +4,6 @@ import { AxiosResponse } from "axios";
 import { plainAxios } from "@/api/base/axiosInstance";
 import { useAuthStore } from "@/store/auth";
 import { swrCacheClear } from "@/api/base/swrCacheClear";
-import { paths } from "@/api/openapi-schema";
 
 const path = "/api/auth/signin";
 
@@ -29,7 +28,7 @@ export const postAuthSignin = async (
     );
 
     // SWR 캐시 비우기
-    swrCacheClear();
+    // swrCacheClear();
   }
 
   return res;

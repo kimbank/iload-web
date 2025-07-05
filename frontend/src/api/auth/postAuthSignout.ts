@@ -15,7 +15,7 @@ export const postAuthSignout = async (
   const res = await AuthedAxios.post(`${path}`, requestBody);
   
   // SWR 캐시 비우기
-  swrCacheClear();
+  // swrCacheClear();
 
   return res;
 };
