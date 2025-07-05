@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { postAuthSignin } from "@/api/postAuthSignin";
+import { postAuthSignin } from "@/api/auth/postAuthSignin";
 
 export default function SigninPage() {
   const router = useRouter();

@@ -1,6 +1,6 @@
 import axios from "axios";
 import useAuthStore from "@/store/auth";
-import postAuthTokenRefresh from "../postAuthTokenRefresh";
+import postAuthTokenRefresh from "../auth/postAuthTokenRefresh";
 import { log } from "@/lib/utils";
 
 export const plainAxios = axios.create({

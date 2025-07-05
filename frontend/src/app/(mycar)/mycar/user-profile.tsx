@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import useAuthStore from "@/store/auth";
-import { postAuthSignout } from "@/api/postAuthSignout";
+import { postAuthSignout } from "@/api/auth/postAuthSignout";
 import { useRouter } from "next/navigation";
 
 export default function UserProfile() {

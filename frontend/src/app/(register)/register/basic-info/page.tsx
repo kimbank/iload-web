@@ -1,8 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { LabelRequired as Label } from "@/components/label-required";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -11,45 +18,50 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/NumberInput";
 import AppBar from "@/components/app-bar";
 import BottomNavigation from "@/components/bottom-navigation";
-import useAuthStore from "@/store/auth";
+import { useAuthStore } from "@/store/auth";
 import { AuthAlertDialog } from "@/components/auth-alert-dialog";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { useVehicleBasicInfoForm } from "@/api/vehicle/useVehicleBasicInfoForm";
+import {
+  MANUFACTURERS,
+  VEHICLE_TYPES,
+  FUEL_TYPES,
+  MANUFACTURE_COUNTRIES,
+  ACCIDENT_INFO,
+  REPAINTED_TYPES,
+  MANUFACTURER_LABELS,
+  VEHICLE_TYPE_LABELS,
+  FUEL_TYPE_LABELS,
+  MANUFACTURE_COUNTRY_LABELS,
+  ACCIDENT_INFO_LABELS,
+  REPAINTED_TYPE_LABELS,
+} from "@/api/vehicle/form/vehicle-constants";
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const { isAuthenticated } = useAuthStore();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  
+  // SOTA 폼 관리 패턴 적용
+  const {
+    form,
+    handleSubmit,
+    isLoading,
+    isFormValid,
+    isDirty,
+  } = useVehicleBasicInfoForm(id ? Number(id) : null);
+
   if (!isAuthenticated) {
     return <AuthAlertDialog />;
   }
 
-  const [formData, setFormData] = useState({
-    manufacturer: "",
-    vehicleType: "",
-    displacement: "",
-    seatingCapacity: "",
-    fuel: "",
-    vin1: "",
-    vin2: "",
-    country: "",
-    trim: "",
-    releasePrice: "",
-    mileage: "",
-    modelYear: "",
-    manufacturingYear: "",
-    accidentInfo: "",
-    paintStatus: "",
-  });
-
-  const handleChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const isFormValid = () => {
-    return Object.values(formData).every((value) => value !== "");
-  };
-
-  const handleSubmit = async () => {
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">로딩중...</div>;
   }
 
   return (
@@ -79,273 +91,402 @@ export default function RegisterPage() {
             입력해주세요.
           </h1>
 
-          <div className="flex flex-wrap gap-2 mb-6">
-            {[
-              "기아",
-              "현대",
-              "제네시스",
-              "쉐보레",
-              "르노코리아",
-              "KG모빌리티",
-              "기타",
-            ].map((brand) => (
-              <Button
-                key={brand}
-                variant={
-                  formData.manufacturer === brand ? "default" : "outline"
-                }
-                onClick={() => handleChange("manufacturer", brand)}
-                className={
-                  formData.manufacturer === brand
-                    ? "bg-black text-white"
-                    : "bg-white text-black border-gray-300"
-                }
-              >
-                {brand}
-              </Button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-            <div>
-              <Label>차량 유형</Label>
-              <Select
-                onValueChange={(value: string) =>
-                  handleChange("vehicleType", value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="차량 유형 선택하기" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sedan">자동차</SelectItem>
-                  <SelectItem value="suv">SUV</SelectItem>
-                  <SelectItem value="truck">트럭</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>배기량(CC)*</Label>
-              <Select
-                onValueChange={(value: string) =>
-                  handleChange("displacement", value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="배기량 선택하기" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="<1000">&lt; 1000cc (경형)</SelectItem>
-                  <SelectItem value="1000-1600">
-                    1000 - 1600cc 미만 (소형)
-                  </SelectItem>
-                  <SelectItem value="1600-2000">
-                    1600 - 2000cc 미만 (중형)
-                  </SelectItem>
-                  <SelectItem value=">2000">&gt; 2000cc (대형)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>승차 인원*</Label>
-              <Select
-                onValueChange={(value: string) =>
-                  handleChange("seatingCapacity", value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="인원 선택하기" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2">2</SelectItem>
-                  <SelectItem value="4">4</SelectItem>
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="7">7</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>연료*</Label>
-              <Select onValueChange={(value: string) => handleChange("fuel", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="연료 선택하기" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gasoline">가솔린</SelectItem>
-                  <SelectItem value="diesel">디젤</SelectItem>
-                  <SelectItem value="lpg">LPG</SelectItem>
-                  <SelectItem value="electric">전기</SelectItem>
-                  <SelectItem value="hybrid">하이브리드</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="col-span-2">
-              <Label>차대번호</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="KMHHT61DP5U123456"
-                  onChange={(e) => handleChange("vin1", e.target.value)}
-                />
-                <Input
-                  placeholder="123가 4567"
-                  onChange={(e) => handleChange("vin2", e.target.value)}
-                />
-              </div>
-            </div>
-            <div>
-              <Label>제조국가</Label>
-              <Select
-                onValueChange={(value: string) => handleChange("country", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="제조사 선택하기" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="korea">한국</SelectItem>
-                  <SelectItem value="usa">미국</SelectItem>
-                  <SelectItem value="germany">독일</SelectItem>
-                  <SelectItem value="japan">일본</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>차량등급</Label>
-              <Input
-                placeholder="노블레스"
-                onChange={(e) => handleChange("trim", e.target.value)}
+          <Form {...form}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Manufacturer Selection */}
+              <FormField
+                control={form.control}
+                name="manufacturer"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {Object.entries(MANUFACTURERS).map(([key, value]) => (
+                        <Button
+                          key={value}
+                          type="button"
+                          variant={field.value === value ? "default" : "outline"}
+                          onClick={() => field.onChange(value)}
+                          className={
+                            field.value === value
+                              ? "bg-black text-white"
+                              : "bg-white text-black border-gray-300"
+                          }
+                        >
+                          {MANUFACTURER_LABELS[key as keyof typeof MANUFACTURER_LABELS]}
+                        </Button>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div>
-              <Label>출고가격*</Label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  placeholder="2200"
-                  onChange={(e) =>
-                    handleChange("releasePrice", e.target.value)
-                  }
-                  className="pr-12"
-                />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                  만원
-                </span>
-              </div>
-            </div>
-            <div>
-              <Label>주행거리*</Label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  placeholder="60000"
-                  onChange={(e) => handleChange("mileage", e.target.value)}
-                  className="pr-10"
-                />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                  km
-                </span>
-              </div>
-            </div>
-            <div>
-              <Label>연식*</Label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  placeholder="2023"
-                  onChange={(e) => handleChange("modelYear", e.target.value)}
-                  className="pr-10"
-                />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                  년도
-                </span>
-              </div>
-            </div>
-            <div>
-              <Label>제조년도</Label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  placeholder="2022"
-                  onChange={(e) =>
-                    handleChange("manufacturingYear", e.target.value)
-                  }
-                  className="pr-10"
-                />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                  년도
-                </span>
-              </div>
-            </div>
-            <div className="col-span-2">
-              <Label>사고정보*</Label>
-              <RadioGroup
-                className="flex gap-4"
-                onValueChange={(value: string) =>
-                  handleChange("accidentInfo", value)
-                }
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="total-loss" id="r1" />
-                  <Label htmlFor="r1">전손 보험사고</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="flood" id="r2" />
-                  <Label htmlFor="r2">침수 보험사고</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="theft" id="r3" />
-                  <Label htmlFor="r3">도난 보험사고</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <div className="col-span-2">
-              <Label>도색여부*</Label>
-              <RadioGroup
-                className="flex gap-4"
-                onValueChange={(value: string) =>
-                  handleChange("paintStatus", value)
-                }
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="none" id="p1" />
-                  <Label htmlFor="p1">무도색</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="simple" id="p2" />
-                  <Label htmlFor="p2">단순도색</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="panel" id="p3" />
-                  <Label htmlFor="p3">판금도색</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="restored" id="p4" />
-                  <Label htmlFor="p4">복원도색</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
 
-          <span className="flex flex-row gap-2 w-full mt-4">
-            <Button
-              className="mt-8"
-              variant="secondary"
-              size="lg"
-              onClick={() => window.history.back()}
-            >
-              이전으로
-            </Button>
-            <Button
-              className="grow mt-8"
-              size="lg"
-              disabled={!isFormValid()}
-              onClick={handleSubmit}
-            >
-              다음으로
-            </Button>
-          </span>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+                {/* Vehicle Type */}
+                <FormField
+                  control={form.control}
+                  name="vehicleType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>차량 유형</FormLabel>
+                      <Select 
+                        key={field.value || "empty"} // 강제 리렌더링을 위한 key
+                        onValueChange={(value) => {
+                          console.log("🔍 Vehicle Type changed:", value, "Current field value:", field.value);
+                          field.onChange(value === "" ? undefined : value);
+                        }} 
+                        value={field.value || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="차량 유형 선택하기" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.entries(VEHICLE_TYPES).map(([key, value]) => (
+                            <SelectItem key={value} value={value}>
+                              {VEHICLE_TYPE_LABELS[key as keyof typeof VEHICLE_TYPE_LABELS]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Displacement */}
+                <FormField
+                  control={form.control}
+                  name="displacement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        <Label required>배기량(CC)</Label>
+                      </FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="1600"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Seater Count */}
+                <FormField
+                  control={form.control}
+                  name="seaterCount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        <Label required>승차 인원</Label>
+                      </FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="5"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Fuel Type */}
+                <FormField
+                  control={form.control}
+                  name="fuelType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        <Label required>연료</Label>
+                      </FormLabel>
+                      <Select 
+                        key={field.value || "empty"} // 강제 리렌더링을 위한 key
+                        onValueChange={(value) => field.onChange(value === "" ? undefined : value)} 
+                        value={field.value || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="연료 선택하기" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.entries(FUEL_TYPES).map(([key, value]) => (
+                            <SelectItem key={value} value={value}>
+                              {FUEL_TYPE_LABELS[key as keyof typeof FUEL_TYPE_LABELS]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Vehicle Code */}
+                <FormField
+                  control={form.control}
+                  name="vehicleCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>차대번호</FormLabel>
+                      <FormControl>
+                        <Input placeholder="KMHHT61DP5U123456" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Vehicle Number */}
+                <FormField
+                  control={form.control}
+                  name="vehicleNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>차량번호</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123가 4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Manufacture Country */}
+                <FormField
+                  control={form.control}
+                  name="manufactureCountry"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>제조국가</FormLabel>
+                      <Select 
+                        key={field.value || "empty"} // 강제 리렌더링을 위한 key
+                        onValueChange={(value) => field.onChange(value === "" ? undefined : value)} 
+                        value={field.value || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="제조국가 선택하기" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.entries(MANUFACTURE_COUNTRIES).map(([key, value]) => (
+                            <SelectItem id={value} key={value} value={value}>
+                              {MANUFACTURE_COUNTRY_LABELS[key as keyof typeof MANUFACTURE_COUNTRY_LABELS]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Vehicle Grade */}
+                <FormField
+                  control={form.control}
+                  name="vehicleGrade"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>차량등급</FormLabel>
+                      <FormControl>
+                        <Input placeholder="노블레스" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Release Price */}
+                <FormField
+                  control={form.control}
+                  name="releasePrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        <Label required>출고가격</Label>
+                      </FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="2200"
+                          suffix="만원"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Mileage */}
+                <FormField
+                  control={form.control}
+                  name="mileage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        <Label required>주행거리</Label>
+                      </FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="60000"
+                          suffix="km"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Release Year */}
+                <FormField
+                  control={form.control}
+                  name="releaseYear"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        <Label required>연식</Label>
+                      </FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="2023"
+                          suffix="년도"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Manufacture Year */}
+                <FormField
+                  control={form.control}
+                  name="manufactureYear"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>제조년도</FormLabel>
+                      <FormControl>
+                        <NumberInput
+                          placeholder="2022"
+                          suffix="년도"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Accident Info */}
+                <FormField
+                  control={form.control}
+                  name="accidentInfo"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>
+                        <Label required>사고정보</Label>
+                      </FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={(value) => field.onChange(value === "" ? undefined : value)}
+                          value={field.value || ""}
+                          className="flex gap-4"
+                        >
+                          {Object.entries(ACCIDENT_INFO).map(([key, value]) => (
+                            <div key={value} className="flex items-center space-x-2">
+                              <RadioGroupItem value={value} id={`accident-${value}`} />
+                              <Label htmlFor={`accident-${value}`}>
+                                {ACCIDENT_INFO_LABELS[key as keyof typeof ACCIDENT_INFO_LABELS]}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Repainted */}
+                <FormField
+                  control={form.control}
+                  name="repainted"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>
+                        <Label required>도색여부</Label>
+                      </FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={(value) => field.onChange(value === "" ? undefined : value)}
+                          value={field.value || ""}
+                          className="flex gap-4"
+                        >
+                          {Object.entries(REPAINTED_TYPES).map(([key, value]) => (
+                            <div key={value} className="flex items-center space-x-2">
+                              <RadioGroupItem value={value} id={`repainted-${value}`} />
+                              <Label htmlFor={`repainted-${value}`}>
+                                {REPAINTED_TYPE_LABELS[key as keyof typeof REPAINTED_TYPE_LABELS]}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <span className="flex flex-row gap-2 w-full mt-4">
+                <Button
+                  type="button"
+                  className="mt-8"
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => window.history.back()}
+                >
+                  이전으로
+                </Button>
+                <Button
+                  type="submit"
+                  className="grow mt-8"
+                  size="lg"
+                  disabled={!isFormValid}
+                >
+                  다음으로
+                </Button>
+              </span>
+            </form>
+          </Form>
         </div>
       </main>
       <BottomNavigation />
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen">
+        <AppBar />
+        <main className="flex-col justify-center items-center pt-14 pb-20">
+          <div className="p-4 text-center">
+            <p>로딩 중...</p>
+          </div>
+        </main>
+        <BottomNavigation />
+      </div>
+    }>
+      <RegisterPageContent />
+    </Suspense>
   );
 }

@@ -6,8 +6,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { postUsersSignup } from "@/api/postUsersSignup";
-import { useCheckUsername } from "@/api/hooks/useCheckUsername";
+import { postUsersSignup } from "@/api/auth/postUsersSignup";
+import { useCheckUsername } from "@/api/auth/useCheckUsername";
 import { CompleteAlertDialog } from "./complete-alert-dialog"; // Adjust the import path as necessary
 
 export default function SignupPage() {
