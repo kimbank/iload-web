@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -40,7 +41,7 @@ class UsersServiceTest {
         testUser.setId(1L);
         testUser.setUsername("testuser");
         testUser.setPassword("password123");
-        testUser.setCreatedAt(LocalDateTime.now());
+        testUser.setCreatedAt(Instant.now());
     }
     
     // username 중복 체크 테스트 케이스들

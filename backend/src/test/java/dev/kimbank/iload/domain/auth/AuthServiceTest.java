@@ -17,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -53,7 +55,7 @@ class AuthServiceTest {
         session.setId(1L);
         session.setUser(user);
         session.setRefreshToken("hashedRefreshToken");
-        session.setExpiryDate(LocalDateTime.now().plusDays(7));
+        session.setExpiryDate(Instant.now().plus(Duration.ofDays(7)));
         session.setRevoked(false);
     }
 
@@ -115,7 +117,7 @@ class AuthServiceTest {
     @Test
     void refresh_expiredToken_throwsException() {
         // Given
-        session.setExpiryDate(LocalDateTime.now().minusDays(1));
+        session.setExpiryDate(Instant.now().minus(Duration.ofDays(1)));
         TokenRefreshRequest request = new TokenRefreshRequest("refreshToken");
         when(securityUtil.hashToken("refreshToken")).thenReturn("hashedRefreshToken");
         when(sessionRepository.findByRefreshToken("hashedRefreshToken")).thenReturn(Optional.of(session));

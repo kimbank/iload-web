@@ -19,7 +19,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -77,7 +78,7 @@ class AuthControllerTest {
         Session session = new Session();
         session.setUser(user);
         session.setRefreshToken(hashedRefreshToken);
-        session.setExpiryDate(LocalDateTime.now().plusDays(7));
+        session.setExpiryDate(Instant.now().plus(Duration.ofDays(7)));
         session.setRevoked(false);
         sessionRepository.save(session);
         sessionRepository.flush(); // 트랜잭션 즉시 반영
