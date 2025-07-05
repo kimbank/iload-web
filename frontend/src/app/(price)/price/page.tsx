@@ -12,7 +12,7 @@ const vehicleData = [
   { id: 6, name: "차종 이름 영역", year: "년식 & 주행거리 영역", price: "9999 만원" },
 ];
 
-export function PricePage() {
+export default function PricePage() {
   return (
       <div className="min-h-screen bg-white">
         <AppBar />
@@ -48,5 +48,3 @@ export function PricePage() {
       </div>
   );
 }
-
-export default PricePage;
