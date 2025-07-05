@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Service
@@ -40,7 +41,7 @@ public class AuthService {
         Session session = new Session();
         session.setUser(user);
         session.setRefreshToken(hashedRefreshToken);
-        session.setExpiryDate(LocalDateTime.now().plusSeconds(jwtProvider.getRefreshTokenExpiration() / 1000));
+        session.setExpiryDate(Instant.now().plusSeconds(jwtProvider.getRefreshTokenExpiration() / 1000));
         session.setRevoked(false);
         sessionRepository.save(session);
 
@@ -52,7 +53,7 @@ public class AuthService {
         String hashedRefreshToken = securityUtil.hashToken(request.getRefreshToken());
         Session session = sessionRepository.findByRefreshToken(hashedRefreshToken)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
-        if (session.isRevoked() || session.getExpiryDate().isBefore(LocalDateTime.now())) {
+        if (session.isRevoked() || session.getExpiryDate().isBefore(Instant.now())) {
             sessionRepository.delete(session);
             throw new IllegalArgumentException("Refresh token is revoked or expired");
         }
@@ -63,7 +64,7 @@ public class AuthService {
         String newHashedRefreshToken = securityUtil.hashToken(newRefreshToken);
 
         session.setRefreshToken(newHashedRefreshToken);
-        session.setExpiryDate(LocalDateTime.now().plusSeconds(jwtProvider.getRefreshTokenExpiration() / 1000));
+        session.setExpiryDate(Instant.now().plusSeconds(jwtProvider.getRefreshTokenExpiration() / 1000));
         session.setRevoked(false);
         sessionRepository.save(session);
 

@@ -31,6 +31,16 @@ class VehicleController {
         return vehicleService.getRegisterVehicleInProgressCard(userId);
     }
 
+    @DeleteMapping("/in-progress-card")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "미완성 차량 등록 카드 삭제",
+            description = "사용자가 미완성 상태로 남긴 차량 등록 카드를 삭제합니다.")
+    public void deleteRegisterVehicleInProgressCard(
+            @AuthedUser Long userId,
+            @RequestParam @NotNull @Positive Long id) {
+        vehicleService.deleteRegisterVehicleInProgressCard(userId, id);
+    }
+
     @PostMapping("/create-empty")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "비어있는 차량 등록 생성",

@@ -44,6 +44,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 // Clear any partial authentication state
                 SecurityContextHolder.clearContext();
+
+                // 응답을 직접 작성하고 필터 체인 중단
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Invalid token\"}");
+                return; // 필터 체인 중단
             }
         }
         filterChain.doFilter(request, response);

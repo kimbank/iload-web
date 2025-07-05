@@ -13,6 +13,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+      timezone:
+        default_storage: NORMALIZE
+      jdbc:
+        time_zone: UTC
   security:
     cors:
       allowed-origins: ${SPRING_CORS_ALLOWED_ORIGINS:http://localhost:8080}

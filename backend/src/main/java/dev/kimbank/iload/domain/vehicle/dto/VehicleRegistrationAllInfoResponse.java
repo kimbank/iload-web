@@ -5,7 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.LocalDate;
 
 /**
  * DTO for {@link dev.kimbank.iload.domain.vehicle.entity.RegisteredVehicle}
@@ -32,11 +33,11 @@ public class VehicleRegistrationAllInfoResponse implements Serializable {
     DriveTypeEnum driveType;
     TransmissionEnum transmission;
     ColorEnum color;
-    LocalDateTime initialRegistrationDate;
+    LocalDate initialRegistrationDate;
     SpecialUseHistoryEnum specialUseHistory;
     SpecialModificationHistoryEnum specialModificationHistory;
     OptionInfoEnum optionInfo;
 
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    Instant createdAt;
+    Instant updatedAt;
 }

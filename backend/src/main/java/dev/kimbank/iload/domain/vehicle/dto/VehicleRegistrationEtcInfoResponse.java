@@ -4,7 +4,7 @@ import dev.kimbank.iload.domain.vehicle.entity.enums.*;
 import lombok.Value;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * DTO for {@link dev.kimbank.iload.domain.vehicle.entity.RegisteredVehicle}
@@ -15,7 +15,7 @@ public class VehicleRegistrationEtcInfoResponse implements Serializable {
     DriveTypeEnum driveType;
     TransmissionEnum transmission;
     ColorEnum color;
-    LocalDateTime initialRegistrationDate;
+    LocalDate initialRegistrationDate;
     SpecialUseHistoryEnum specialUseHistory;
     SpecialModificationHistoryEnum specialModificationHistory;
     OptionInfoEnum optionInfo;

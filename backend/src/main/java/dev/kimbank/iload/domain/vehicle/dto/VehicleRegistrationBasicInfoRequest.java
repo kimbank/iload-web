@@ -10,6 +10,7 @@ import java.io.Serializable;
  */
 @Value
 public class VehicleRegistrationBasicInfoRequest implements Serializable {
+    ManufacturerEnum manufacturer;
     VehicleTypeEnum vehicleType;
     Integer displacement;
     Integer seaterCount;

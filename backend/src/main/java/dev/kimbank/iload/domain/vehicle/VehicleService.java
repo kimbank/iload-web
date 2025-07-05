@@ -46,12 +46,23 @@ class VehicleService {
         return vehicles;
     }
 
+    // 미완성 차량 등록 카드 삭제
+    public void deleteRegisterVehicleInProgressCard(Long userId, Long id) {
+        RegisteredVehicle vehicle = registeredVehicleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + id));
+
+        // 차량이 해당 유저의 차량인지 확인
+        validateOwnership(vehicle, userId);
+
+        registeredVehicleRepository.delete(vehicle);
+    }
+
     // "등록 차량" 상세 조회
     public RegisteredVehicle getRegisteredVehicle(Long userId, Long vehicleId) {
-        // 차량이 해당 유저의 차량인지 확인
         RegisteredVehicle vehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
+        // 차량이 해당 유저의 차량인지 확인
         validateOwnership(vehicle, userId);
 
         return vehicle;
@@ -62,6 +73,7 @@ class VehicleService {
         RegisteredVehicle existingVehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
+        // 차량이 해당 유저의 차량인지 확인
         validateOwnership(existingVehicle, userId);
 
         registeredVehicleRepository.save(existingVehicle);
@@ -73,6 +85,7 @@ class VehicleService {
         RegisteredVehicle existingVehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
+        // 차량이 해당 유저의 차량인지 확인
         validateOwnership(existingVehicle, userId);
 
         modelMapper.map(request, existingVehicle);
@@ -86,6 +99,7 @@ class VehicleService {
         RegisteredVehicle existingVehicle = registeredVehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + vehicleId));
 
+        // 차량이 해당 유저의 차량인지 확인
         validateOwnership(existingVehicle, userId);
 
         modelMapper.map(request, existingVehicle);

@@ -4,7 +4,7 @@ import dev.kimbank.iload.domain.vehicle.entity.enums.*;
 import lombok.Value;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -20,8 +20,8 @@ public class RegisteredVehicleCardResponse implements Serializable {
     Integer mileage;
     Integer price;
     List<RegisteredVehiclePhotoDto> photos;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    Instant createdAt;
+    Instant updatedAt;
 
     /**
      * DTO for {@link dev.kimbank.iload.domain.vehicle.entity.RegisteredVehiclePhoto}
