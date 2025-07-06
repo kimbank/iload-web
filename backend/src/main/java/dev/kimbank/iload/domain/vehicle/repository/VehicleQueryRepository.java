@@ -5,7 +5,12 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import dev.kimbank.iload.domain.vehicle.dto.*;
 import dev.kimbank.iload.domain.vehicle.entity.*;
+import dev.kimbank.iload.domain.vehicle.entity.enums.AccidentInfoEnum;
+import dev.kimbank.iload.domain.vehicle.entity.enums.RepaintedEnum;
 import jakarta.persistence.EntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -43,6 +48,77 @@ public class VehicleQueryRepository {
                 .orderBy(registeredVehicle.createdAt.desc())
                 .limit(2)
                 .fetch();
+    }
+
+    // 고가 차량 조회
+    public List<RegisteredVehicleCardResponse> findHighPriceVehicles() {
+        QRegisteredVehicle registeredVehicle = QRegisteredVehicle.registeredVehicle;
+        QRegisteredVehiclePhoto registeredVehiclePhoto = QRegisteredVehiclePhoto.registeredVehiclePhoto;
+
+        return jpaQueryFactory
+                .select(Projections.constructor(RegisteredVehicleCardResponse.class,
+                        registeredVehicle.id,
+                        registeredVehicle.users.id,
+                        registeredVehicle.users.username,
+                        registeredVehicle.manufacturer,
+                        registeredVehicle.releaseYear,
+                        registeredVehicle.mileage,
+                        registeredVehicle.sellingPrice,
+                        Projections.list(Projections.constructor(RegisteredVehicleCardResponse.RegisteredVehiclePhotoDto.class,
+                                registeredVehiclePhoto.photoUrl
+                        )),
+                        registeredVehicle.createdAt,
+                        registeredVehicle.updatedAt
+                ))
+                .from(registeredVehicle)
+                .leftJoin(registeredVehicle.registeredVehiclePhotos, registeredVehiclePhoto)
+                .orderBy(registeredVehicle.sellingPrice.desc())
+                .limit(4)
+                .fetch();
+    }
+
+    // 전체 or 무사고 or 무도색 or 무사고 & 무도색 조회 (페이징)
+    public Page<RegisteredVehicleCardResponse> findRegisteredVehicleCardsByCondition(
+            Boolean noAccident, Boolean noPaint, Pageable pageable) {
+        QRegisteredVehicle registeredVehicle = QRegisteredVehicle.registeredVehicle;
+        QRegisteredVehiclePhoto registeredVehiclePhoto = QRegisteredVehiclePhoto.registeredVehiclePhoto;
+
+        List<RegisteredVehicleCardResponse> content = jpaQueryFactory
+                .select(Projections.constructor(RegisteredVehicleCardResponse.class,
+                        registeredVehicle.id,
+                        registeredVehicle.users.id,
+                        registeredVehicle.users.username,
+                        registeredVehicle.manufacturer,
+                        registeredVehicle.releaseYear,
+                        registeredVehicle.mileage,
+                        registeredVehicle.sellingPrice,
+                        Projections.list(Projections.constructor(RegisteredVehicleCardResponse.RegisteredVehiclePhotoDto.class,
+                                registeredVehiclePhoto.photoUrl
+                        )),
+                        registeredVehicle.createdAt,
+                        registeredVehicle.updatedAt
+                ))
+                .from(registeredVehicle)
+                .leftJoin(registeredVehicle.registeredVehiclePhotos, registeredVehiclePhoto)
+                .where(
+                        noAccident ? registeredVehicle.accidentInfo.eq(AccidentInfoEnum.NONE) : null,
+                        noPaint ? registeredVehicle.repainted.eq(RepaintedEnum.NOT_REPAINTED) : null
+                )
+                .orderBy(registeredVehicle.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = jpaQueryFactory
+                .select(registeredVehicle.count())
+                .from(registeredVehicle)
+                .where(
+                        noAccident ? registeredVehicle.accidentInfo.eq(AccidentInfoEnum.NONE) : null,
+                        noPaint ? registeredVehicle.repainted.eq(RepaintedEnum.NOT_REPAINTED) : null
+                )
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     // 미완성 "등록 차량" 조회

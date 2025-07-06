@@ -1,7 +1,7 @@
 import useSWRImmutable from "swr/immutable";
 import { authedFetcher } from "@/api/base/swrFetcher";
 
-const path = `/api/user/letter`;
+const path = `/api/vehicle/high-price`;
 
 interface HighPriceVehicleResponse {
   id: number;

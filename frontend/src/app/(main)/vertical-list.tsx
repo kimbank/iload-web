@@ -1,57 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VehicleData, getAllVehicles, getAccidentFreeVehicles, getPaintedFreeVehicles } from "@/api/vehicles";
 import { Button } from "@/components/ui/button";
+import { usePageRegisteredVehicles } from "@/api/main/usePageRegisteredVehicles";
+import { components } from "@/api/openapi-schema";
 
-type VehicleType = 'all' | 'accident-free' | 'painted-free';
-
-// API 타입에 따른 함수 매핑
-const vehicleApiFunctions = {
-  'all': getAllVehicles,
-  'accident-free': getAccidentFreeVehicles,
-  'painted-free': getPaintedFreeVehicles,
+type FilterState = {
+  noAccident: boolean;
+  noPaint: boolean;
 };
-
-// 로딩 상태를 관리하는 커스텀 훅
-function useVehicleData(type: VehicleType = 'all') {
-  const [vehicles, setVehicles] = useState<VehicleData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const apiFunction = vehicleApiFunctions[type];
-        const response = await apiFunction();
-        
-        setVehicles(response.vehicles);
-      } catch (err) {
-        setError('차량 정보를 불러오는데 실패했습니다.');
-        console.error('Error fetching vehicles:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicles();
-  }, [type]);
-
-  return { vehicles, loading, error };
-}
 
 // 차량 카드 컴포넌트 (세로 목록용)
 function VehicleCard({
   vehicle,
   loading,
+  isLast,
+  lastVehicleElementRef,
 }: {
-  vehicle?: VehicleData;
+  vehicle?: components["schemas"]["RegisteredVehicleCardResponse"];
   loading?: boolean;
+  isLast?: boolean;
+  lastVehicleElementRef?: (node: HTMLDivElement | null) => void;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -75,14 +46,17 @@ function VehicleCard({
   if (!vehicle) return null;
 
   return (
-    <div className="flex gap-3 last:border-b-0 transition-colors cursor-pointer">
+    <div 
+      ref={isLast ? lastVehicleElementRef : null}
+      className="flex gap-3 last:border-b-0 transition-colors cursor-pointer"
+    >
       <div className="relative w-46 h-30 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
-        {vehicle.imageUrl ? (
+        {vehicle.photos && vehicle.photos.length > 0 && vehicle.photos[0].url ? (
           <>
             {!imageLoaded && <Skeleton className="absolute inset-0" />}
             <Image
-              src={vehicle.imageUrl}
-              alt={vehicle.title}
+              src={vehicle.photos[0].url}
+              alt={`${vehicle.manufacturer} 차량 사진`}
               fill
               className={`object-cover transition-opacity duration-300 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
@@ -91,7 +65,9 @@ function VehicleCard({
             />
           </>
         ) : (
-          <Skeleton className="w-full h-full" />
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <span className="text-gray-400 text-sm">이미지 없음</span>
+          </div>
         )}
       </div>
 
@@ -99,13 +75,17 @@ function VehicleCard({
         <span className="flex flex-col justify-between py-4">
           <span>
             <h3 className="font-normal text-gray-600 text-base leading-tight">
-              {vehicle.title}
+              {vehicle.manufacturer || "제조사 미등록"}
             </h3>
             <p className="font-normal text-gray-500 text-sm">
-              {vehicle.subtitle}
+              {vehicle.releaseYear && ` ${vehicle.releaseYear}년`}
+              {" · "}
+              {vehicle.mileage ? `${vehicle.mileage.toLocaleString()}km` : "주행거리 미등록"}
             </p>
           </span>
-          <p className="font-bold text-gray-900 text-base">{vehicle.price}</p>
+          <p className="font-bold text-gray-900 text-base">
+            {vehicle.price ? `${vehicle.price.toLocaleString()}원` : "가격 미등록"}
+          </p>
         </span>
       </div>
     </div>
@@ -115,22 +95,65 @@ function VehicleCard({
 // 메인 세로 리스트 컴포넌트
 export default function VerticalList({
   title = "차량 목록",
-  type: initialType = "all"
 }: {
   title?: string;
-  type?: VehicleType;
 }) {
-  const [selectedType, setSelectedType] = useState<VehicleType>(initialType);
-  const { vehicles, loading, error } = useVehicleData(selectedType);
+  const [filters, setFilters] = useState<FilterState>({
+    noAccident: false,
+    noPaint: false,
+  });
 
-  if (error) {
+  const { vehicles, isLoading, isValidating, canLoadMore, loadMore, isError } = 
+    usePageRegisteredVehicles({
+      noAccident: filters.noAccident,
+      noPaint: filters.noPaint,
+      size: 4,
+    });
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  // 마지막 요소에 대한 ref callback
+  const lastVehicleElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoading || isValidating) return;
+      if (observer.current) observer.current.disconnect();
+      
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && canLoadMore) {
+          loadMore();
+        }
+      });
+      
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, isValidating, canLoadMore, loadMore]
+  );
+
+  // 필터 로직
+  const handleFilterChange = (filterType: 'all' | 'noAccident' | 'noPaint') => {
+    if (filterType === 'all') {
+      // 전체 선택 시 다른 필터 모두 해제
+      setFilters({ noAccident: false, noPaint: false });
+    } else if (filterType === 'noAccident') {
+      // 무사고 토글
+      setFilters(prev => ({ ...prev, noAccident: !prev.noAccident }));
+    } else if (filterType === 'noPaint') {
+      // 무도색 토글
+      setFilters(prev => ({ ...prev, noPaint: !prev.noPaint }));
+    }
+  };
+
+  // 전체가 선택되었는지 확인
+  const isAllSelected = !filters.noAccident && !filters.noPaint;
+
+  if (isError) {
     return (
       <div className="w-full">
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
         </div>
         <div className="text-center py-8 text-gray-500">
-          {error}
+          차량 목록을 불러오는 중 오류가 발생했습니다.
         </div>
       </div>
     );
@@ -144,38 +167,63 @@ export default function VerticalList({
 
       <div className="flex gap-3 mb-2">
         <Button
-          variant={selectedType === 'all' ? "default" : "outline"}
+          variant={isAllSelected ? "default" : "outline"}
           className="w-17"
-          onClick={() => setSelectedType('all')}
+          onClick={() => handleFilterChange('all')}
         >
           전체
         </Button>
         <Button
-          variant={selectedType === 'accident-free' ? "default" : "outline"}
+          variant={filters.noAccident ? "default" : "outline"}
           className="w-17"
-          onClick={() => setSelectedType('accident-free')}
+          onClick={() => handleFilterChange('noAccident')}
         >
           무사고
         </Button>
         <Button
-          variant={selectedType === 'painted-free' ? "default" : "outline"}
+          variant={filters.noPaint ? "default" : "outline"}
           className="w-17"
-          onClick={() => setSelectedType('painted-free')}
+          onClick={() => handleFilterChange('noPaint')}
         >
           무도색
         </Button>
       </div>
 
       <div className="flex flex-col gap-4 bg-white rounded-lg">
-        {loading
-          ? // 로딩 중일 때 skeleton 카드들 표시
-            Array.from({ length: 4 }).map((_, index) => (
-              <VehicleCard key={index} loading={true} />
-            ))
-          : // 데이터 로드 완료 후 실제 차량 카드들 표시
-            vehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
+        {vehicles.map((vehicle, index) => {
+          const isLastElement = vehicles.length === index + 1;
+          return (
+            <VehicleCard 
+              key={`${vehicle.id}-${index}`} 
+              vehicle={vehicle}
+              isLast={isLastElement}
+              lastVehicleElementRef={lastVehicleElementRef}
+            />
+          );
+        })}
+
+        {/* 로딩 상태 */}
+        {(isLoading || isValidating) && (
+          <>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <VehicleCard key={`loading-${index}`} loading={true} />
             ))}
+          </>
+        )}
+
+        {/* 더 이상 로드할 데이터가 없을 때 */}
+        {!canLoadMore && vehicles.length > 0 && (
+          <div className="flex justify-center items-center p-4">
+            <p className="text-gray-300">모든 차량을 불러왔습니다.</p>
+          </div>
+        )}
+
+        {/* 데이터가 없을 때 */}
+        {!isLoading && vehicles.length === 0 && (
+          <div className="flex justify-center items-center p-8">
+            <p className="text-gray-300">등록된 차량이 없습니다.</p>
+          </div>
+        )}
       </div>
     </div>
   );

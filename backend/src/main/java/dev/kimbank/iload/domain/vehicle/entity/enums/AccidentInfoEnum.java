@@ -6,6 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AccidentInfoEnum {
+    // 사고 없음
+    NONE("NONE", "사고 없음"),
     // 전손 보험사고
     TOTAL_LOSS("TOTAL_LOSS", "전손 보험사고"),
     // 침수 보험사고

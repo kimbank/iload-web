@@ -71,7 +71,8 @@ public class SecurityConfig {
                 "/api/auth/signin",
                 "/api/auth/token-refresh",
                 "/api/users/check-username",
-                "/api/users/signup"
+                "/api/users/signup",
+                "/api/main/**"
         ));
 
         // Swagger UI 관련 경로

@@ -189,6 +189,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/main/registered-vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["findRegisteredVehicleCardsByCondition"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/main/latest-registered-vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["findLatestRegisteredVehicles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/main/high-price-vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["findHighPriceVehicles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/vehicle/in-progress-card": {
         parameters: {
             query?: never;
@@ -254,7 +302,7 @@ export interface components {
             /** Format: int32 */
             manufactureYear?: number;
             /** @enum {string} */
-            accidentInfo?: "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER";
+            accidentInfo?: "NONE" | "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER";
             /** @enum {string} */
             repainted?: "NOT_REPAINTED" | "REPAINTED_WITH_SIMPLE" | "REPAINTED_WITH_BODYWORK" | "REPAINTED_WITH_RESTORATION" | "OTHER";
         };
@@ -309,7 +357,7 @@ export interface components {
             /** Format: int32 */
             manufactureYear?: number;
             /** @enum {string} */
-            accidentInfo?: "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER";
+            accidentInfo?: "NONE" | "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER";
             /** @enum {string} */
             repainted?: "NOT_REPAINTED" | "REPAINTED_WITH_SIMPLE" | "REPAINTED_WITH_BODYWORK" | "REPAINTED_WITH_RESTORATION" | "OTHER";
             /** @enum {string} */
@@ -380,6 +428,70 @@ export interface components {
         UsernameCheckResponse: {
             available?: boolean;
             message?: string;
+        };
+        Pageable: {
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            sort?: string[];
+        };
+        PageRegisteredVehicleCardResponse: {
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+            /** Format: int32 */
+            size?: number;
+            content?: components["schemas"]["RegisteredVehicleCardResponse"][];
+            /** Format: int32 */
+            number?: number;
+            sort?: components["schemas"]["SortObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
+            empty?: boolean;
+        };
+        PageableObject: {
+            /** Format: int64 */
+            offset?: number;
+            sort?: components["schemas"]["SortObject"];
+            paged?: boolean;
+            unpaged?: boolean;
+            /** Format: int32 */
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+        };
+        RegisteredVehicleCardResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            usersId?: number;
+            username?: string;
+            /** @enum {string} */
+            manufacturer?: "KIA" | "HYUNDAI" | "GENESIS" | "CHEVROLET" | "RENAULT_KOREA" | "KG_MOBILITY" | "OTHER";
+            /** Format: int32 */
+            releaseYear?: number;
+            /** Format: int32 */
+            mileage?: number;
+            /** Format: int32 */
+            price?: number;
+            photos?: components["schemas"]["RegisteredVehiclePhotoDto"][];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        RegisteredVehiclePhotoDto: {
+            url?: string;
+        };
+        SortObject: {
+            empty?: boolean;
+            sorted?: boolean;
+            unsorted?: boolean;
         };
     };
     responses: never;
@@ -612,6 +724,70 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["UsernameCheckResponse"];
+                };
+            };
+        };
+    };
+    findRegisteredVehicleCardsByCondition: {
+        parameters: {
+            query: {
+                noAccident: boolean;
+                noPaint: boolean;
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageRegisteredVehicleCardResponse"];
+                };
+            };
+        };
+    };
+    findLatestRegisteredVehicles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegisteredVehicleCardResponse"][];
+                };
+            };
+        };
+    };
+    findHighPriceVehicles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegisteredVehicleCardResponse"][];
                 };
             };
         };

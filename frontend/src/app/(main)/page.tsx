@@ -4,6 +4,7 @@ import Divider from "@/components/divider";
 import BannerCarousel from "./banner-carousel";
 import GridList from "./grid-list";
 import VerticalList from "./vertical-list";
+import RegisteredVehiclesList from "@/components/RegisteredVehiclesList";
 
 export default function Home() {
   return (

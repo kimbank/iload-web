@@ -6,6 +6,7 @@ import dev.kimbank.iload.domain.vehicle.entity.enums.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -89,6 +90,7 @@ public class RegisteredVehicle {
     @Enumerated(EnumType.STRING)
     @Column(name = "accident_info")
     @Comment("사고 정보")
+    @ColumnDefault("NULL")
     private AccidentInfoEnum accidentInfo;
 
     @Enumerated(EnumType.STRING)
