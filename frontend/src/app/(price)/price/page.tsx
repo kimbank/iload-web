@@ -32,7 +32,7 @@ export default function PricePage() {
                 key={vehicle.id}
               >
                 {/* 차량 이미지 플레이스홀더 */}
-                <div className="w-full h-60 bg-gray-200 rounded-lg mb-3"></div>
+                <div className="w-full aspect-[1.24] bg-gray-200 rounded-lg mb-3"></div>
                 
                 {/* 차량 정보 */}
                 <div className="space-y-1">
