@@ -23,47 +23,37 @@ function RegisterCompleteContent() {
       <AppBar />
       <main className="flex-col justify-center items-center pt-14 pb-20">
         <div className="p-4">
-          <div className="flex justify-center items-center mb-8">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
-                1
-              </div>
-              <div className="w-24 h-px bg-gray-300"></div>
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
-                2
-              </div>
-              <div className="w-24 h-px bg-gray-300"></div>
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white">
-                3
-              </div>
-            </div>
-          </div>
 
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">
-              차량 등록이
-              <br />
-              완료되었습니다!
+          <div className=" pt-25 text-center">
+            <img
+              src="/assets/black-car_241x241.png"
+              alt="차량 등록 완료 이미지"
+              className="mx-auto max-w-60"
+            />
+            <h1 className="text-2xl font-semibold mb-5">
+              차량 등록이 완료되었어요!
             </h1>
-            <p className="text-gray-600 mb-8">
-              등록하신 차량 정보가 성공적으로 저장되었습니다.
+            <p className="text-xl mb-25">
+              해당 차량의 시세도 바로<br />
+              확인이 가능해요!
             </p>
 
             <div className="space-y-4">
               <Button
-                className="w-full"
+                className="w-full text-xl h-12"
+                size="lg"
+                // # TODO: 이 차량 등록 id로 시세 확인 페이지로 이동 ?id={id}
+                onClick={() => router.push("/price/check")}
+              >
+                시세 확인하러 가기
+              </Button>
+              <Button
+                className="w-full text-xl h-11"
+                variant="ghost"
                 size="lg"
                 onClick={() => router.push("/")}
               >
-                홈으로 돌아가기
-              </Button>
-              <Button
-                className="w-full"
-                variant="outline"
-                size="lg"
-                onClick={() => router.back()}
-              >
-                이전 페이지로 돌아가기
+                메인 화면으로 돌아가기
               </Button>
             </div>
           </div>

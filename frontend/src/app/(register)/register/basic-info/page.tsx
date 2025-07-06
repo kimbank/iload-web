@@ -24,7 +24,7 @@ import AppBar from "@/components/app-bar";
 import BottomNavigation from "@/components/bottom-navigation";
 import { useAuthStore } from "@/store/auth";
 import { AuthAlertDialog } from "@/components/auth-alert-dialog";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { useVehicleBasicInfoForm } from "@/api/vehicle/useVehicleBasicInfoForm";
 import {
@@ -45,6 +45,7 @@ import {
 function RegisterPageContent() {
   const { isAuthenticated } = useAuthStore();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const id = searchParams.get("id");
   
   // SOTA 폼 관리 패턴 적용
@@ -451,7 +452,7 @@ function RegisterPageContent() {
                   className="mt-8"
                   variant="secondary"
                   size="lg"
-                  onClick={() => window.history.back()}
+                  onClick={() => router.back()}
                 >
                   이전으로
                 </Button>

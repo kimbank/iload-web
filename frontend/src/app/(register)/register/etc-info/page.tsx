@@ -123,7 +123,7 @@ function EtcInfoPageContent() {
     try {
       await putVehicleEtcInfo(Number(id), formData as VehicleRegistrationEtcInfoRequest);
       // Navigate to next step or completion page
-      router.push(`/register/complete?id=${id}`);
+      router.push(`/register/file-upload?id=${id}`);
     } catch (error) {
       console.error("Failed to update etc info", error);
     } finally {
@@ -332,7 +332,7 @@ function EtcInfoPageContent() {
               className="mt-8"
               variant="secondary"
               size="lg"
-              onClick={() => window.history.back()}
+              onClick={() => router.back()}
             >
               이전으로
             </Button>

@@ -1,6 +1,10 @@
-import Link from 'next/link'
+"use client"
+
+import { useRouter } from "next/navigation";
 
 export default function NotFound() {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center max-w-2xl min-w-xs">
       <div className="text-center space-y-6">
@@ -21,13 +25,19 @@ export default function NotFound() {
         </div>
 
         {/* 액션 버튼들 */}
-        <div className="pt-4">
-          <Link
-            href="/"
+        <div className="flex flex-col gap-3 pt-4">
+          <button
+            onClick={() => router.push("/")}
             className="bg-black text-white px-6 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors"
           >
             홈으로 돌아가기
-          </Link>
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="bg-gray-200 text-gray-800 px-6 py-3 rounded-md font-medium hover:bg-gray-300 transition-colors"
+          >
+            이전 페이지로 돌아가기
+          </button>
         </div>
       </div>
     </div>
