@@ -20,6 +20,11 @@ spring:
       refresh-token:
         secret-key: a-string-secret-at-least-256-bits-long
         expiration: 604800000
+  s3:
+    endpoint: http://localhost:9000
+    bucket: test-bucket
+    access-key: test-access-key
+    secret-key: test-secret-key
 
 logging:
   level:
