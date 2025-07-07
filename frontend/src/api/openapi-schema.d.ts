@@ -81,6 +81,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/file/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 차량 사진 조회
+         * @description 사용자의 차량 ID를 기반으로 등록된 차량 사진 목록을 조회합니다.
+         */
+        get: operations["findRegisteredVehiclePhotos"];
+        put?: never;
+        /**
+         * 차량 사진 업로드
+         * @description 사용자의 차량 ID를 기반으로 차량 사진을 업로드합니다.
+         */
+        post: operations["uploadRegisteredVehiclePhoto"];
+        /**
+         * 차량 사진 삭제
+         * @description 사용자의 차량 ID와 사진 ID를 기반으로 등록된 차량 사진을 삭제합니다.
+         */
+        delete: operations["deleteRegisteredVehiclePhoto"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/file/certificates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 차량 등록증 조회
+         * @description 사용자의 차량 ID를 기반으로 등록된 차량 등록증 목록을 조회합니다.
+         */
+        get: operations["findVehicleRegistrationCertificates"];
+        put?: never;
+        /**
+         * 차량 등록증 업로드
+         * @description 사용자의 차량 ID를 기반으로 차량 등록증을 업로드합니다.
+         */
+        post: operations["uploadVehicleRegistrationCertificate"];
+        /**
+         * 차량 등록증 삭제
+         * @description 사용자의 차량 ID와 등록증 ID를 기반으로 등록된 차량 등록증을 삭제합니다.
+         */
+        delete: operations["deleteVehicleRegistrationCertificate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/token-refresh": {
         parameters: {
             query?: never;
@@ -384,8 +440,13 @@ export interface components {
         RegisteredVehiclePhoto: {
             /** Format: int64 */
             id?: number;
-            photoUrl?: string;
             registeredVehicle?: components["schemas"]["RegisteredVehicle"];
+            filePath?: string;
+            fileName?: string;
+            /** Format: int64 */
+            fileSize?: number;
+            fileContentType?: string;
+            fileUrl?: string;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
@@ -395,6 +456,12 @@ export interface components {
             /** Format: int64 */
             id?: number;
             registeredVehicle?: components["schemas"]["RegisteredVehicle"];
+            filePath?: string;
+            fileName?: string;
+            /** Format: int64 */
+            fileSize?: number;
+            fileContentType?: string;
+            fileUrl?: string;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
@@ -456,12 +523,12 @@ export interface components {
             /** Format: int64 */
             offset?: number;
             sort?: components["schemas"]["SortObject"];
-            unpaged?: boolean;
-            paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
+            paged?: boolean;
+            unpaged?: boolean;
         };
         RegisteredVehicleCardResponse: {
             /** Format: int64 */
@@ -477,19 +544,31 @@ export interface components {
             mileage?: number;
             /** Format: int32 */
             price?: number;
-            photos?: components["schemas"]["RegisteredVehiclePhotoDto"][];
+            thumbnailUrl?: string;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
         };
-        RegisteredVehiclePhotoDto: {
-            url?: string;
-        };
         SortObject: {
             empty?: boolean;
             unsorted?: boolean;
             sorted?: boolean;
+        };
+        RegisteredVehicleFileSummaryResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            registeredVehicleId?: number;
+            filePath?: string;
+            fileName?: string;
+            fileUrl?: string;
+            /** Format: int64 */
+            fileSize?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
         };
     };
     responses: never;
@@ -589,6 +668,144 @@ export interface operations {
                 content: {
                     "*/*": Record<string, never>;
                 };
+            };
+        };
+    };
+    findRegisteredVehiclePhotos: {
+        parameters: {
+            query: {
+                vehicleId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegisteredVehicleFileSummaryResponse"][];
+                };
+            };
+        };
+    };
+    uploadRegisteredVehiclePhoto: {
+        parameters: {
+            query: {
+                vehicleId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteRegisteredVehiclePhoto: {
+        parameters: {
+            query: {
+                photoId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    findVehicleRegistrationCertificates: {
+        parameters: {
+            query: {
+                vehicleId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegisteredVehicleFileSummaryResponse"][];
+                };
+            };
+        };
+    };
+    uploadVehicleRegistrationCertificate: {
+        parameters: {
+            query: {
+                vehicleId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteVehicleRegistrationCertificate: {
+        parameters: {
+            query: {
+                certificateId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -3,6 +3,7 @@ package dev.kimbank.iload.domain.vehicle.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import dev.kimbank.iload.domain.file.entity.QRegisteredVehiclePhoto;
 import dev.kimbank.iload.domain.vehicle.dto.*;
 import dev.kimbank.iload.domain.vehicle.entity.*;
 import dev.kimbank.iload.domain.vehicle.entity.enums.AccidentInfoEnum;
@@ -37,14 +38,18 @@ public class VehicleQueryRepository {
                         registeredVehicle.releaseYear,
                         registeredVehicle.mileage,
                         registeredVehicle.sellingPrice,
-                        Projections.list(Projections.constructor(RegisteredVehicleCardResponse.RegisteredVehiclePhotoDto.class,
-                                registeredVehiclePhoto.photoUrl
-                        )),
+                        registeredVehiclePhoto.fileUrl,
                         registeredVehicle.createdAt,
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
-                .leftJoin(registeredVehicle.registeredVehiclePhotos, registeredVehiclePhoto)
+                .leftJoin(registeredVehiclePhoto)
+                .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
+                    .and(registeredVehiclePhoto.id.eq(
+                        jpaQueryFactory.select(registeredVehiclePhoto.id.max())
+                                .from(registeredVehiclePhoto)
+                                .where(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id))
+                    )))
                 .orderBy(registeredVehicle.createdAt.desc())
                 .limit(2)
                 .fetch();
@@ -64,14 +69,18 @@ public class VehicleQueryRepository {
                         registeredVehicle.releaseYear,
                         registeredVehicle.mileage,
                         registeredVehicle.sellingPrice,
-                        Projections.list(Projections.constructor(RegisteredVehicleCardResponse.RegisteredVehiclePhotoDto.class,
-                                registeredVehiclePhoto.photoUrl
-                        )),
+                        registeredVehiclePhoto.fileUrl,
                         registeredVehicle.createdAt,
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
-                .leftJoin(registeredVehicle.registeredVehiclePhotos, registeredVehiclePhoto)
+                .leftJoin(registeredVehiclePhoto)
+                .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
+                        .and(registeredVehiclePhoto.id.eq(
+                                jpaQueryFactory.select(registeredVehiclePhoto.id.max())
+                                        .from(registeredVehiclePhoto)
+                                        .where(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id))
+                        )))
                 .orderBy(registeredVehicle.sellingPrice.desc())
                 .limit(4)
                 .fetch();
@@ -92,14 +101,18 @@ public class VehicleQueryRepository {
                         registeredVehicle.releaseYear,
                         registeredVehicle.mileage,
                         registeredVehicle.sellingPrice,
-                        Projections.list(Projections.constructor(RegisteredVehicleCardResponse.RegisteredVehiclePhotoDto.class,
-                                registeredVehiclePhoto.photoUrl
-                        )),
+                        registeredVehiclePhoto.fileUrl,
                         registeredVehicle.createdAt,
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
-                .leftJoin(registeredVehicle.registeredVehiclePhotos, registeredVehiclePhoto)
+                .leftJoin(registeredVehiclePhoto)
+                .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
+                        .and(registeredVehiclePhoto.id.eq(
+                                jpaQueryFactory.select(registeredVehiclePhoto.id.max())
+                                        .from(registeredVehiclePhoto)
+                                        .where(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id))
+                        )))
                 .where(
                         noAccident ? registeredVehicle.accidentInfo.isEmpty()
                                 .or(registeredVehicle.accidentInfo.contains(AccidentInfoEnum.NONE)

@@ -3,7 +3,6 @@ package dev.kimbank.iload.domain.main;
 import dev.kimbank.iload.domain.vehicle.dto.RegisteredVehicleCardResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

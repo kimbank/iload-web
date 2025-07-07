@@ -3,6 +3,8 @@ package dev.kimbank.iload.domain.vehicle.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.kimbank.iload.domain.users.entity.Users;
 import dev.kimbank.iload.domain.vehicle.entity.enums.*;
+import dev.kimbank.iload.domain.file.entity.VehicleRegistrationCertificate;
+import dev.kimbank.iload.domain.file.entity.RegisteredVehiclePhoto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -135,10 +137,12 @@ public class RegisteredVehicle {
     @Comment("옵션 정보")
     private OptionInfoEnum optionInfo;
 
+    @JsonIgnore // JSON 직렬화에서 제외 (순환 참조 방지)
     @OneToMany(mappedBy = "registeredVehicle", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Comment("차량 등록증")
     private List<VehicleRegistrationCertificate> vehicleRegistrationCertificates;
 
+    @JsonIgnore // JSON 직렬화에서 제외 (순환 참조 방지)
     @OneToMany(mappedBy = "registeredVehicle", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Comment("등록된 차량 사진")
     private List<RegisteredVehiclePhoto> registeredVehiclePhotos;

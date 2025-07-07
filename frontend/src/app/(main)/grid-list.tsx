@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { components } from "@/api/openapi-schema";
 import useHighPriceVehicles from "@/api/main/useHighPriceVehicles";
 import useLatestRegisteredVehicles from "@/api/main/useLatestRegisteredVehicles";
+import { MANUFACTURERS } from "@/api/vehicle/form/vehicle-constants";
 
 type VehicleType = "latest-registered" | "high-price";
 
@@ -37,14 +37,13 @@ function VehicleCard({
   return (
     <div className="transition-shadow cursor-pointer">
       <div className="relative w-full aspect-[4/3] mb-3 bg-gray-100 rounded-md overflow-hidden">
-        {vehicle.photos && vehicle.photos[0]?.url ? (
+        {vehicle.thumbnailUrl ? (
           <>
             {!imageLoaded && <Skeleton className="absolute inset-0" />}
-            <Image
-              src={vehicle.photos[0].url}
+            <img
+              src={vehicle.thumbnailUrl || "/assets/no-image.png"}
               alt={`${vehicle.manufacturer} 차량 사진`}
-              fill
-              className={`object-cover transition-opacity duration-300 ${
+              className={`w-full h-full object-cover transition-opacity duration-300 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
               onLoad={() => setImageLoaded(true)}
@@ -59,7 +58,7 @@ function VehicleCard({
 
       <div className="space-y-1">
         <h3 className="font-normal text-gray-600 text-lg leading-tight">
-          {vehicle.manufacturer || "제조사 미등록"}
+          {MANUFACTURERS[vehicle.manufacturer as keyof typeof MANUFACTURERS] || vehicle.manufacturer || "제조사 미등록"}
         </h3>
         <p className="font-normal text-gray-600 text-sm">
           {vehicle.releaseYear ? `${vehicle.releaseYear}년` : "연식 미등록"}

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { usePageRegisteredVehicles } from "@/api/main/usePageRegisteredVehicles";
 import { components } from "@/api/openapi-schema";
+import { MANUFACTURERS } from "@/api/vehicle/form/vehicle-constants";
 
 type FilterState = {
   noAccident: boolean;
@@ -51,14 +51,13 @@ function VehicleCard({
       className="flex gap-3 last:border-b-0 transition-colors cursor-pointer"
     >
       <div className="relative w-2/5 min-w-36 aspect-[4/3] bg-gray-100 rounded-md overflow-hidden">
-        {vehicle.photos && vehicle.photos.length > 0 && vehicle.photos[0].url ? (
+        {vehicle.thumbnailUrl  ? (
           <>
             {!imageLoaded && <Skeleton className="absolute inset-0" />}
-            <Image
-              src={vehicle.photos[0].url}
+            <img
+              src={vehicle.thumbnailUrl || "/assets/no-image.png"}
               alt={`${vehicle.manufacturer} 차량 사진`}
-              fill
-              className={`object-cover transition-opacity duration-300 ${
+              className={`w-full h-full object-cover transition-opacity duration-300 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
               onLoad={() => setImageLoaded(true)}
@@ -75,7 +74,7 @@ function VehicleCard({
         <span className="flex flex-col justify-between py-4">
           <span>
             <h3 className="font-normal text-gray-600 text-base leading-tight">
-              {vehicle.manufacturer || "제조사 미등록"}
+              {MANUFACTURERS[vehicle.manufacturer as keyof typeof MANUFACTURERS] || vehicle.manufacturer || "제조사 미등록"}
             </h3>
             <p className="font-normal text-gray-500 text-sm">
               {vehicle.releaseYear && ` ${vehicle.releaseYear}년`}

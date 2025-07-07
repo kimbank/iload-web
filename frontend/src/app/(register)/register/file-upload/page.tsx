@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "@/store/auth";
 import { AuthAlertDialog } from "@/components/auth-alert-dialog";
 import AppBar from "@/components/app-bar";
@@ -20,12 +20,19 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { X } from "lucide-react";
+import { uploadVehicleRegistrationCertificate, deleteVehicleRegistrationCertificate } from "@/api/file-upload/certificates";
+import { uploadVehiclePhoto, deleteVehiclePhoto } from "@/api/file-upload/photos";
+import { useVehicleRegistrationCertificates } from "@/api/file-upload/useVehicleRegistrationCertificates";
+import { useVehiclePhotos } from "@/api/file-upload/useVehiclePhotos";
 
 interface UploadedFile {
-  file: File;
-  preview: string;
+  id?: number;
+  file?: File;
+  preview?: string;
   name: string;
   size: string;
+  fileUrl?: string;
+  isUploaded?: boolean;
 }
 
 function FileUploadPageContent() {
@@ -33,14 +40,28 @@ function FileUploadPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
+  const vehicleId = id ? parseInt(id) : 0;
 
+  // 서버에서 기존 파일 목록 조회
+  const { data: existingCertificates, mutate: mutateCertificates } = useVehicleRegistrationCertificates(vehicleId);
+  const { data: existingPhotos, mutate: mutatePhotos } = useVehiclePhotos(vehicleId);
+
+  // 새로 업로드할 파일들
+  const [newVehicleRegistrations, setNewVehicleRegistrations] = useState<UploadedFile[]>([]);
+  const [newVehiclePhotos, setNewVehiclePhotos] = useState<UploadedFile[]>([]);
+
+  // 서버 파일들을 로컬 상태로 변환
   const [vehicleRegistrations, setVehicleRegistrations] = useState<UploadedFile[]>([]);
   const [vehiclePhotos, setVehiclePhotos] = useState<UploadedFile[]>([]);
+
+  // 업로드 상태
+  const [uploading, setUploading] = useState(false);
 
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     type: '' as 'registration' | 'photo',
     index: -1,
+    fileId: undefined as number | undefined,
   });
 
   const [previewDialog, setPreviewDialog] = useState({
@@ -50,6 +71,33 @@ function FileUploadPageContent() {
 
   const registrationInputRef = useRef<HTMLInputElement>(null);
   const photosInputRef = useRef<HTMLInputElement>(null);
+
+  // 서버 데이터를 로컬 상태로 변환
+  useEffect(() => {
+    if (existingCertificates) {
+      const converted = existingCertificates.map(cert => ({
+        id: cert.id,
+        name: cert.fileName || 'Unknown',
+        size: cert.fileSize ? formatFileSize(cert.fileSize) : '0 KB',
+        fileUrl: cert.fileUrl,
+        isUploaded: true,
+      }));
+      setVehicleRegistrations([...converted, ...newVehicleRegistrations]);
+    }
+  }, [existingCertificates, newVehicleRegistrations]);
+
+  useEffect(() => {
+    if (existingPhotos) {
+      const converted = existingPhotos.map(photo => ({
+        id: photo.id,
+        name: photo.fileName || 'Unknown',
+        size: photo.fileSize ? formatFileSize(photo.fileSize) : '0 KB',
+        fileUrl: photo.fileUrl,
+        isUploaded: true,
+      }));
+      setVehiclePhotos([...converted, ...newVehiclePhotos]);
+    }
+  }, [existingPhotos, newVehiclePhotos]);
 
   if (!isAuthenticated) {
     return <AuthAlertDialog />;
@@ -63,72 +111,110 @@ function FileUploadPageContent() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const handleRegistrationUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRegistrationUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    const newRegistrations = files.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      name: file.name,
-      size: formatFileSize(file.size),
-    }));
+    if (!files.length || !vehicleId) return;
+
+    setUploading(true);
     
-    setVehicleRegistrations([...vehicleRegistrations, ...newRegistrations]);
+    try {
+      for (const file of files) {
+        await uploadVehicleRegistrationCertificate(vehicleId, file);
+      }
+      
+      // 업로드 성공 후 서버 데이터 다시 가져오기
+      await mutateCertificates();
+      
+      // 입력 필드 초기화
+      if (registrationInputRef.current) {
+        registrationInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("차량 등록증 업로드 실패:", error);
+      alert("차량 등록증 업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const handlePhotosUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotosUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    const newPhotos = files.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      name: file.name,
-      size: formatFileSize(file.size),
-    }));
-    
-    // 최대 30개까지만 허용
-    const totalPhotos = [...vehiclePhotos, ...newPhotos];
-    if (totalPhotos.length > 30) {
+    if (!files.length || !vehicleId) return;
+
+    // 최대 30개 체크
+    const currentPhotoCount = vehiclePhotos.length;
+    if (currentPhotoCount + files.length > 30) {
       alert("차량 사진은 최대 30개까지만 첨부할 수 있습니다.");
-      setVehiclePhotos(totalPhotos.slice(0, 30));
-    } else {
-      setVehiclePhotos(totalPhotos);
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      for (const file of files) {
+        await uploadVehiclePhoto(vehicleId, file);
+      }
+      
+      // 업로드 성공 후 서버 데이터 다시 가져오기
+      await mutatePhotos();
+      
+      // 입력 필드 초기화
+      if (photosInputRef.current) {
+        photosInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("차량 사진 업로드 실패:", error);
+      alert("차량 사진 업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setUploading(false);
     }
   };
 
   const removeRegistration = (index: number) => {
+    const file = vehicleRegistrations[index];
     setDeleteDialog({
       open: true,
       type: 'registration',
       index,
+      fileId: file.id,
     });
   };
 
   const removePhoto = (index: number) => {
+    const file = vehiclePhotos[index];
     setDeleteDialog({
       open: true,
       type: 'photo',
       index,
+      fileId: file.id,
     });
   };
 
-  const confirmDelete = () => {
-    if (deleteDialog.type === 'registration') {
-      const registrationToRemove = vehicleRegistrations[deleteDialog.index];
-      URL.revokeObjectURL(registrationToRemove.preview);
-      setVehicleRegistrations(vehicleRegistrations.filter((_, i) => i !== deleteDialog.index));
-      if (registrationInputRef.current) {
-        registrationInputRef.current.value = "";
+  const confirmDelete = async () => {
+    if (!deleteDialog.fileId) return;
+
+    try {
+      setUploading(true);
+      
+      if (deleteDialog.type === 'registration') {
+        await deleteVehicleRegistrationCertificate(deleteDialog.fileId);
+        await mutateCertificates();
+      } else if (deleteDialog.type === 'photo') {
+        await deleteVehiclePhoto(deleteDialog.fileId);
+        await mutatePhotos();
       }
-    } else if (deleteDialog.type === 'photo') {
-      const photoToRemove = vehiclePhotos[deleteDialog.index];
-      URL.revokeObjectURL(photoToRemove.preview);
-      setVehiclePhotos(vehiclePhotos.filter((_, i) => i !== deleteDialog.index));
+      
+      setDeleteDialog({ open: false, type: 'registration', index: -1, fileId: undefined });
+    } catch (error) {
+      console.error("파일 삭제 실패:", error);
+      alert("파일 삭제에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setUploading(false);
     }
-    
-    setDeleteDialog({ open: false, type: 'registration', index: -1 });
   };
 
   const cancelDelete = () => {
-    setDeleteDialog({ open: false, type: 'registration', index: -1 });
+    setDeleteDialog({ open: false, type: 'registration', index: -1, fileId: undefined });
   };
 
   const openPreview = (file: UploadedFile) => {
@@ -140,20 +226,20 @@ function FileUploadPageContent() {
   };
 
   const handleSubmit = async () => {
-    if (!id) return;
+    if (!vehicleId) return;
     
     try {
-      // TODO: 실제 파일 업로드 API 호출
-      console.log("Uploading files:", {
-        registrations: vehicleRegistrations,
-        photos: vehiclePhotos,
-      });
+      // 모든 파일이 업로드되었는지 확인
+      if (uploading) {
+        alert("파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.");
+        return;
+      }
       
       // 완료 페이지로 이동
-      router.push(`/register/complete?id=${id}`);
+      router.push(`/register/complete?id=${vehicleId}`);
     } catch (error) {
-      console.error("파일 업로드 실패:", error);
-      alert("파일 업로드에 실패했습니다. 다시 시도해주세요.");
+      console.error("등록 완료 실패:", error);
+      alert("등록 완료에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -276,7 +362,7 @@ function FileUploadPageContent() {
                           </div>
                         </div>
                         <button
-                          onClick={() => removeRegistration(index)}
+                          onClick={() => removePhoto(index)}
                           className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600"
                         >
                           <X className="w-4 h-4" />
@@ -319,7 +405,7 @@ function FileUploadPageContent() {
               type="button"
               variant="secondary"
               size="lg"
-              onClick={() => router.push(`/register/etc-info?id=${id}`)}
+              onClick={() => router.push(`/register/etc-info?id=${vehicleId}`)}
             >
               이전으로
             </Button>
@@ -328,8 +414,9 @@ function FileUploadPageContent() {
               className="grow"
               size="lg"
               onClick={handleSubmit}
+              disabled={uploading}
             >
-              등록하기
+              {uploading ? "업로드 중..." : "등록하기"}
             </Button>
           </div>
         </div>
@@ -372,36 +459,64 @@ function FileUploadPageContent() {
           <div className="flex-1 overflow-auto max-h-[60vh] flex items-center justify-center bg-gray-50 rounded-lg">
             {previewDialog.file && (
               <>
-                {previewDialog.file.file.type.startsWith('image/') ? (
-                  <img
-                    src={previewDialog.file.preview}
-                    alt={previewDialog.file.name}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                ) : previewDialog.file.file.type === 'application/pdf' ? (
-                  <div className="text-center p-8">
-                    <div className="text-6xl mb-4">📄</div>
-                    <p className="text-gray-600 mb-4">PDF 파일 미리보기</p>
-                    <p className="text-sm text-gray-500">
-                      PDF 파일은 브라우저에서 직접 열어보려면 다운로드가 필요합니다.
-                    </p>
-                    <Button
-                      className="mt-4"
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = previewDialog.file!.preview;
-                        link.download = previewDialog.file!.name;
-                        link.click();
-                      }}
-                    >
-                      다운로드
-                    </Button>
-                  </div>
+                {previewDialog.file.isUploaded ? (
+                  // 서버에서 온 파일은 URL로 표시
+                  previewDialog.file.fileUrl ? (
+                    <div className="text-center p-8">
+                      <div className="text-6xl mb-4">📄</div>
+                      <p className="text-gray-600 mb-4">파일 미리보기</p>
+                      <p className="text-sm text-gray-500 mb-4">
+                        {previewDialog.file.name}
+                      </p>
+                      <Button
+                        onClick={() => {
+                          window.open(previewDialog.file!.fileUrl, '_blank');
+                        }}
+                      >
+                        파일 보기
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center p-8">
+                      <div className="text-6xl mb-4">📎</div>
+                      <p className="text-gray-600">파일을 불러올 수 없습니다.</p>
+                    </div>
+                  )
                 ) : (
-                  <div className="text-center p-8">
-                    <div className="text-6xl mb-4">📎</div>
-                    <p className="text-gray-600">미리보기를 지원하지 않는 파일 형식입니다.</p>
-                  </div>
+                  // 새로 업로드된 파일은 기존 로직 사용
+                  <>
+                    {previewDialog.file.file?.type.startsWith('image/') ? (
+                      <img
+                        src={previewDialog.file.preview}
+                        alt={previewDialog.file.name}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    ) : previewDialog.file.file?.type === 'application/pdf' ? (
+                      <div className="text-center p-8">
+                        <div className="text-6xl mb-4">📄</div>
+                        <p className="text-gray-600 mb-4">PDF 파일 미리보기</p>
+                        <p className="text-sm text-gray-500">
+                          PDF 파일은 브라우저에서 직접 열어보려면 다운로드가 필요합니다.
+                        </p>
+                        <Button
+                          className="mt-4"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = previewDialog.file!.preview || '';
+                            link.download = previewDialog.file!.name;
+                            link.click();
+                          }}
+                        >
+                          다운로드
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="text-center p-8">
+                        <div className="text-6xl mb-4">📎</div>
+                        <p className="text-gray-600">미리보기를 지원하지 않는 파일 형식입니다.</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
