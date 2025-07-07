@@ -245,6 +245,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/price/details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 가격 상세 정보 조회
+         * @description 사용자의 차량 ID를 기반으로 가격 상세 정보를 조회합니다.
+         */
+        get: operations["getPriceDetails"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/main/registered-vehicles": {
         parameters: {
             query?: never;
@@ -252,6 +272,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 등록 차량 카드 조회
+         * @description 등록된 차량 카드 목록을 조건에 따라 조회합니다.
+         */
         get: operations["findRegisteredVehicleCardsByCondition"];
         put?: never;
         post?: never;
@@ -268,6 +292,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 최신 등록 차량 조회
+         * @description 최신 등록 2대의 차량을 반환합니다.
+         */
         get: operations["findLatestRegisteredVehicles"];
         put?: never;
         post?: never;
@@ -284,6 +312,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /**
+         * 고가 차량 조회
+         * @description 가격이 높은 차량 4대를 반환합니다.
+         */
         get: operations["findHighPriceVehicles"];
         put?: never;
         post?: never;
@@ -428,40 +460,8 @@ export interface components {
             specialModificationHistory?: "FUEL_MODIFICATION" | "SEAT_MODIFICATION" | "ENGINE_MODIFICATION" | "OTHER";
             /** @enum {string} */
             optionInfo?: "SUNROOF" | "SIDE_STEP" | "SMART_KEY" | "OTHER";
-            vehicleRegistrationCertificates?: components["schemas"]["VehicleRegistrationCertificate"][];
-            registeredVehiclePhotos?: components["schemas"]["RegisteredVehiclePhoto"][];
             /** Format: int32 */
             sellingPrice?: number;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        RegisteredVehiclePhoto: {
-            /** Format: int64 */
-            id?: number;
-            registeredVehicle?: components["schemas"]["RegisteredVehicle"];
-            filePath?: string;
-            fileName?: string;
-            /** Format: int64 */
-            fileSize?: number;
-            fileContentType?: string;
-            fileUrl?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        VehicleRegistrationCertificate: {
-            /** Format: int64 */
-            id?: number;
-            registeredVehicle?: components["schemas"]["RegisteredVehicle"];
-            filePath?: string;
-            fileName?: string;
-            /** Format: int64 */
-            fileSize?: number;
-            fileContentType?: string;
-            fileUrl?: string;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
@@ -494,6 +494,32 @@ export interface components {
             available?: boolean;
             message?: string;
         };
+        PriceDetailResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** @enum {string} */
+            manufacturer?: "KIA" | "HYUNDAI" | "GENESIS" | "CHEVROLET" | "RENAULT_KOREA" | "KG_MOBILITY" | "OTHER";
+            /** @enum {string} */
+            vehicleType?: "CAR" | "TRUCK" | "BUS" | "MOTORCYCLE" | "OTHER";
+            /** @enum {string} */
+            fuelType?: "DIESEL" | "GASOLINE" | "LPG" | "ELECTRIC" | "HYBRID" | "OTHER";
+            /** Format: int32 */
+            mileage?: number;
+            /** Format: int32 */
+            releaseYear?: number;
+            /** Format: int32 */
+            manufactureYear?: number;
+            accidentInfo?: ("NONE" | "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER")[];
+            /** @enum {string} */
+            repainted?: "NOT_REPAINTED" | "REPAINTED_WITH_SIMPLE" | "REPAINTED_WITH_BODYWORK" | "REPAINTED_WITH_RESTORATION" | "OTHER";
+            /** @enum {string} */
+            color?: "WHITE" | "BLACK" | "PEARL" | "SILVER" | "GRAY" | "CHARCOAL" | "NAVY" | "RED" | "YELLOW" | "GREEN" | "BLUE" | "LIGHT_GOLD" | "BROWN" | "GOLD" | "SKY_BLUE" | "TURQUOISE" | "LIGHT_GREEN" | "PINK" | "ORANGE" | "OTHER";
+            photos?: string[];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
         Pageable: {
             /** Format: int32 */
             page?: number;
@@ -514,21 +540,21 @@ export interface components {
             /** Format: int32 */
             number?: number;
             sort?: components["schemas"]["SortObject"];
-            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
+            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
             sort?: components["schemas"]["SortObject"];
+            paged?: boolean;
+            unpaged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
             pageSize?: number;
-            paged?: boolean;
-            unpaged?: boolean;
         };
         RegisteredVehicleCardResponse: {
             /** Format: int64 */
@@ -552,8 +578,8 @@ export interface components {
         };
         SortObject: {
             empty?: boolean;
-            unsorted?: boolean;
             sorted?: boolean;
+            unsorted?: boolean;
         };
         RegisteredVehicleFileSummaryResponse: {
             /** Format: int64 */
@@ -939,6 +965,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["UsernameCheckResponse"];
+                };
+            };
+        };
+    };
+    getPriceDetails: {
+        parameters: {
+            query: {
+                vehicleId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PriceDetailResponse"];
                 };
             };
         };
