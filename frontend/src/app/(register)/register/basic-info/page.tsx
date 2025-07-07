@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { NumberInput } from "@/components/NumberInput";
@@ -34,12 +35,6 @@ import {
   MANUFACTURE_COUNTRIES,
   ACCIDENT_INFO,
   REPAINTED_TYPES,
-  MANUFACTURER_LABELS,
-  VEHICLE_TYPE_LABELS,
-  FUEL_TYPE_LABELS,
-  MANUFACTURE_COUNTRY_LABELS,
-  ACCIDENT_INFO_LABELS,
-  REPAINTED_TYPE_LABELS,
 } from "@/api/vehicle/form/vehicle-constants";
 
 function RegisterPageContent() {
@@ -47,8 +42,7 @@ function RegisterPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
-  
-  // SOTA 폼 관리 패턴 적용
+
   const {
     form,
     handleSubmit,
@@ -100,20 +94,20 @@ function RegisterPageContent() {
                 name="manufacturer"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {Object.entries(MANUFACTURERS).map(([key, value]) => (
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(MANUFACTURERS).map(([key, label]) => (
                         <Button
-                          key={value}
+                          key={key}
                           type="button"
-                          variant={field.value === value ? "default" : "outline"}
-                          onClick={() => field.onChange(value)}
+                          variant={field.value === key ? "default" : "outline"}
+                          onClick={() => field.onChange(key)}
                           className={
-                            field.value === value
+                            field.value === key
                               ? "bg-black text-white"
                               : "bg-white text-black border-gray-300"
                           }
                         >
-                          {MANUFACTURER_LABELS[key as keyof typeof MANUFACTURER_LABELS]}
+                          {label}
                         </Button>
                       ))}
                     </div>
@@ -129,7 +123,7 @@ function RegisterPageContent() {
                   name="vehicleType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>차량 유형</FormLabel>
+                      <Label className="text-lg">차량 유형</Label>
                       <Select 
                         key={field.value || "empty"} // 강제 리렌더링을 위한 key
                         onValueChange={(value) => {
@@ -144,9 +138,9 @@ function RegisterPageContent() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.entries(VEHICLE_TYPES).map(([key, value]) => (
-                            <SelectItem key={value} value={value}>
-                              {VEHICLE_TYPE_LABELS[key as keyof typeof VEHICLE_TYPE_LABELS]}
+                          {Object.entries(VEHICLE_TYPES).map(([key, label]) => (
+                            <SelectItem key={key} value={key}>
+                              {label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -163,7 +157,7 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <Label required>배기량(CC)</Label>
+                      <Label className="text-lg" required>배기량(CC)</Label>
                       </FormLabel>
                       <FormControl>
                         <NumberInput
@@ -183,7 +177,7 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <Label required>승차 인원</Label>
+                        <Label className="text-lg" required>승차 인원</Label>
                       </FormLabel>
                       <FormControl>
                         <NumberInput
@@ -203,7 +197,7 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <Label required>연료</Label>
+                        <Label className="text-lg" required>연료</Label>
                       </FormLabel>
                       <Select 
                         key={field.value || "empty"} // 강제 리렌더링을 위한 key
@@ -216,9 +210,9 @@ function RegisterPageContent() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.entries(FUEL_TYPES).map(([key, value]) => (
-                            <SelectItem key={value} value={value}>
-                              {FUEL_TYPE_LABELS[key as keyof typeof FUEL_TYPE_LABELS]}
+                          {Object.entries(FUEL_TYPES).map(([key, label]) => (
+                            <SelectItem key={key} value={key}>
+                              {label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -234,7 +228,7 @@ function RegisterPageContent() {
                   name="vehicleCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>차대번호</FormLabel>
+                      <Label className="text-lg">차대번호</Label>
                       <FormControl>
                         <Input placeholder="KMHHT61DP5U123456" {...field} />
                       </FormControl>
@@ -249,7 +243,7 @@ function RegisterPageContent() {
                   name="vehicleNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>차량번호</FormLabel>
+                      <Label className="text-lg">차량번호</Label>
                       <FormControl>
                         <Input placeholder="123가 4567" {...field} />
                       </FormControl>
@@ -264,7 +258,7 @@ function RegisterPageContent() {
                   name="manufactureCountry"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>제조국가</FormLabel>
+                      <Label className="text-lg">제조국가</Label>
                       <Select 
                         key={field.value || "empty"} // 강제 리렌더링을 위한 key
                         onValueChange={(value) => field.onChange(value === "" ? undefined : value)} 
@@ -276,9 +270,9 @@ function RegisterPageContent() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.entries(MANUFACTURE_COUNTRIES).map(([key, value]) => (
-                            <SelectItem id={value} key={value} value={value}>
-                              {MANUFACTURE_COUNTRY_LABELS[key as keyof typeof MANUFACTURE_COUNTRY_LABELS]}
+                          {Object.entries(MANUFACTURE_COUNTRIES).map(([key, label]) => (
+                            <SelectItem id={key} key={key} value={key}>
+                              {label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -294,7 +288,7 @@ function RegisterPageContent() {
                   name="vehicleGrade"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>차량등급</FormLabel>
+                      <Label className="text-lg">차량등급</Label>
                       <FormControl>
                         <Input placeholder="노블레스" {...field} />
                       </FormControl>
@@ -310,7 +304,7 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <Label required>출고가격</Label>
+                      <Label className="text-lg" required>출고가격</Label>
                       </FormLabel>
                       <FormControl>
                         <NumberInput
@@ -331,7 +325,7 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <Label required>주행거리</Label>
+                      <Label className="text-lg" required>주행거리</Label>
                       </FormLabel>
                       <FormControl>
                         <NumberInput
@@ -352,7 +346,7 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        <Label required>연식</Label>
+                      <Label className="text-lg" required>연식</Label>
                       </FormLabel>
                       <FormControl>
                         <NumberInput
@@ -372,7 +366,7 @@ function RegisterPageContent() {
                   name="manufactureYear"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>제조년도</FormLabel>
+                      <Label className="text-lg">제조년도</Label>
                       <FormControl>
                         <NumberInput
                           placeholder="2022"
@@ -392,23 +386,29 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem className="col-span-2">
                       <FormLabel>
-                        <Label required>사고정보</Label>
+                        <Label className="text-xl" required>사고정보</Label>
                       </FormLabel>
                       <FormControl>
-                        <RadioGroup
-                          onValueChange={(value) => field.onChange(value === "" ? undefined : value)}
-                          value={field.value || ""}
-                          className="flex gap-4"
-                        >
-                          {Object.entries(ACCIDENT_INFO).map(([key, value]) => (
-                            <div key={value} className="flex items-center space-x-2">
-                              <RadioGroupItem value={value} id={`accident-${value}`} />
-                              <Label htmlFor={`accident-${value}`}>
-                                {ACCIDENT_INFO_LABELS[key as keyof typeof ACCIDENT_INFO_LABELS]}
+                        <div className="flex flex-wrap gap-4">
+                          {Object.entries(ACCIDENT_INFO).map(([key, label]) => (
+                            <div key={key} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`accident-${key}`}
+                                checked={field.value?.includes(key) || false}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    field.onChange([...(field.value || []), key]);
+                                  } else {
+                                    field.onChange(field.value?.filter((item: string) => item !== key) || []);
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`accident-${key}`}>
+                                {label}
                               </Label>
                             </div>
                           ))}
-                        </RadioGroup>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -422,19 +422,19 @@ function RegisterPageContent() {
                   render={({ field }) => (
                     <FormItem className="col-span-2">
                       <FormLabel>
-                        <Label required>도색여부</Label>
+                        <Label className="text-xl" required>도색여부</Label>
                       </FormLabel>
                       <FormControl>
                         <RadioGroup
                           onValueChange={(value) => field.onChange(value === "" ? undefined : value)}
                           value={field.value || ""}
-                          className="flex gap-4"
+                          className="flex gap-4 flex-wrap"
                         >
-                          {Object.entries(REPAINTED_TYPES).map(([key, value]) => (
-                            <div key={value} className="flex items-center space-x-2">
-                              <RadioGroupItem value={value} id={`repainted-${value}`} />
-                              <Label htmlFor={`repainted-${value}`}>
-                                {REPAINTED_TYPE_LABELS[key as keyof typeof REPAINTED_TYPE_LABELS]}
+                          {Object.entries(REPAINTED_TYPES).map(([key, label]) => (
+                            <div key={key} className="flex items-center space-x-2">
+                              <RadioGroupItem value={key} id={`repainted-${key}`} />
+                              <Label htmlFor={`repainted-${key}`}>
+                                {label}
                               </Label>
                             </div>
                           ))}

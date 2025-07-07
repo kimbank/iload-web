@@ -102,7 +102,7 @@ export default function RegisterPage() {
               ))}
             </div>
           )}
-          {isError && <p className="text-center text-red-500">데이터를 불러오는데 실패했습니다.</p>}
+          {isError && <p className="text-center text-gray-300">데이터를 불러오는데 실패했습니다.</p>}
           {inProgressCars && inProgressCars.length > 0 ? (
             inProgressCars.map((car) => (
               <Card key={car.id} className="mb-4 relative">

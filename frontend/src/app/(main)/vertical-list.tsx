@@ -50,7 +50,7 @@ function VehicleCard({
       ref={isLast ? lastVehicleElementRef : null}
       className="flex gap-3 last:border-b-0 transition-colors cursor-pointer"
     >
-      <div className="relative w-46 h-30 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
+      <div className="relative w-2/5 min-w-36 aspect-[4/3] bg-gray-100 rounded-md overflow-hidden">
         {vehicle.photos && vehicle.photos.length > 0 && vehicle.photos[0].url ? (
           <>
             {!imageLoaded && <Skeleton className="absolute inset-0" />}
@@ -65,9 +65,9 @@ function VehicleCard({
             />
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+          <Skeleton className="w-full aspect-[4/3] flex items-center justify-center">
             <span className="text-gray-400 text-sm">이미지 없음</span>
-          </div>
+          </Skeleton>
         )}
       </div>
 
@@ -221,7 +221,7 @@ export default function VerticalList({
         {/* 데이터가 없을 때 */}
         {!isLoading && vehicles.length === 0 && (
           <div className="flex justify-center items-center p-8">
-            <p className="text-gray-300">등록된 차량이 없습니다.</p>
+            <p className="text-gray-300">조건에 맞는 차량이 없습니다.</p>
           </div>
         )}
       </div>

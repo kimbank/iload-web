@@ -3,56 +3,18 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  VehicleData,
-  getRecentAddedVehicles,
-  getHighPriceVehicles,
-} from "@/api/vehicles";
+import { components } from "@/api/openapi-schema";
+import useHighPriceVehicles from "@/api/main/useHighPriceVehicles";
+import useLatestRegisteredVehicles from "@/api/main/useLatestRegisteredVehicles";
 
-type VehicleType = "recent-added" | "high-price";
-
-// API 타입에 따른 함수 매핑
-const vehicleApiFunctions = {
-  "recent-added": getRecentAddedVehicles,
-  "high-price": getHighPriceVehicles,
-};
-
-// 로딩 상태를 관리하는 커스텀 훅
-function useVehicleData(type: VehicleType = "recent-added") {
-  const [vehicles, setVehicles] = useState<VehicleData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const apiFunction = vehicleApiFunctions[type];
-        const response = await apiFunction();
-
-        setVehicles(response.vehicles);
-      } catch (err) {
-        setError("차량 정보를 불러오는데 실패했습니다.");
-        console.error("Error fetching vehicles:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicles();
-  }, [type]);
-
-  return { vehicles, loading, error };
-}
+type VehicleType = "latest-registered" | "high-price";
 
 // 차량 카드 컴포넌트
 function VehicleCard({
   vehicle,
   loading,
 }: {
-  vehicle?: VehicleData;
+  vehicle?: components["schemas"]["RegisteredVehicleCardResponse"];
   loading?: boolean;
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -75,12 +37,12 @@ function VehicleCard({
   return (
     <div className="transition-shadow cursor-pointer">
       <div className="relative w-full aspect-[4/3] mb-3 bg-gray-100 rounded-md overflow-hidden">
-        {vehicle.imageUrl ? (
+        {vehicle.photos && vehicle.photos[0]?.url ? (
           <>
             {!imageLoaded && <Skeleton className="absolute inset-0" />}
             <Image
-              src={vehicle.imageUrl}
-              alt={vehicle.title}
+              src={vehicle.photos[0].url}
+              alt={`${vehicle.manufacturer} 차량 사진`}
               fill
               className={`object-cover transition-opacity duration-300 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
@@ -89,18 +51,24 @@ function VehicleCard({
             />
           </>
         ) : (
-          <Skeleton className="w-full h-full" />
+          <Skeleton className="w-full h-full flex items-center justify-center">
+            {/* <span className="text-gray-400 text-sm">이미지 없음</span> */}
+          </Skeleton>
         )}
       </div>
 
       <div className="space-y-1">
         <h3 className="font-normal text-gray-600 text-lg leading-tight">
-          {vehicle.title}
+          {vehicle.manufacturer || "제조사 미등록"}
         </h3>
-        <p className="font-normal text-gray-600 text-base">
-          {vehicle.subtitle}
+        <p className="font-normal text-gray-600 text-sm">
+          {vehicle.releaseYear ? `${vehicle.releaseYear}년` : "연식 미등록"}
+          {" · "}
+          {vehicle.mileage ? `${vehicle.mileage.toLocaleString()}km` : "주행거리 미등록"}
         </p>
-        <p className="font-bold text-gray-900 text-lg pt-1">{vehicle.price}</p>
+        <p className="font-bold text-black text-base pt-1">
+          {vehicle.price ? `${vehicle.price.toLocaleString()} 만원` : "가격 미등록"}
+        </p>
       </div>
     </div>
   );
@@ -109,12 +77,17 @@ function VehicleCard({
 // 메인 그리드 리스트 컴포넌트
 export default function GridList({
   title = "차량 목록",
-  type = "recent-added",
+  type = "latest-registered",
 }: {
   title?: string;
   type?: VehicleType;
 }) {
-  const { vehicles, loading, error } = useVehicleData(type);
+  // 타입에 따라 적절한 훅 사용
+  const latestVehicles = useLatestRegisteredVehicles();
+  const highPriceVehicles = useHighPriceVehicles();
+  
+  const { data: vehicles, isLoading: loading, isError: error, mutate } = 
+    type === "latest-registered" ? latestVehicles : highPriceVehicles;
 
   if (error) {
     return (
@@ -136,12 +109,12 @@ export default function GridList({
       <div className="grid grid-cols-2 gap-4">
         {loading
           ? // 로딩 중일 때 skeleton 카드들 표시
-            Array.from({ length: type == "recent-added" ? 2 : 4 }).map((_, index) => (
+            Array.from({ length: type == "latest-registered" ? 2 : 4 }).map((_, index) => (
               <VehicleCard key={index} loading={true} />
             ))
           : // 데이터 로드 완료 후 실제 차량 카드들 표시
-            vehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
+            vehicles?.map((vehicle: components["schemas"]["RegisteredVehicleCardResponse"]) => (
+              <VehicleCard key={vehicle.id} vehicle={vehicle} loading={loading} />
             ))}
       </div>
     </div>

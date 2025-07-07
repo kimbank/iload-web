@@ -101,8 +101,11 @@ public class VehicleQueryRepository {
                 .from(registeredVehicle)
                 .leftJoin(registeredVehicle.registeredVehiclePhotos, registeredVehiclePhoto)
                 .where(
-                        noAccident ? registeredVehicle.accidentInfo.eq(AccidentInfoEnum.NONE) : null,
-                        noPaint ? registeredVehicle.repainted.eq(RepaintedEnum.NOT_REPAINTED) : null
+                        noAccident ? registeredVehicle.accidentInfo.isEmpty()
+                                .or(registeredVehicle.accidentInfo.contains(AccidentInfoEnum.NONE)
+                                        .and(registeredVehicle.accidentInfo.size().eq(1))) : null,
+                        noPaint ? registeredVehicle.repainted.eq(RepaintedEnum.NOT_REPAINTED)
+                                .or(registeredVehicle.repainted.eq(Expressions.nullExpression())) : null
                 )
                 .orderBy(registeredVehicle.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -113,8 +116,11 @@ public class VehicleQueryRepository {
                 .select(registeredVehicle.count())
                 .from(registeredVehicle)
                 .where(
-                        noAccident ? registeredVehicle.accidentInfo.eq(AccidentInfoEnum.NONE) : null,
-                        noPaint ? registeredVehicle.repainted.eq(RepaintedEnum.NOT_REPAINTED) : null
+                        noAccident ? registeredVehicle.accidentInfo.isEmpty()
+                                .or(registeredVehicle.accidentInfo.contains(AccidentInfoEnum.NONE)
+                                        .and(registeredVehicle.accidentInfo.size().eq(1))) : null,
+                        noPaint ? registeredVehicle.repainted.eq(RepaintedEnum.NOT_REPAINTED)
+                                .or(registeredVehicle.repainted.eq(Expressions.nullExpression())) : null
                 )
                 .fetchOne();
 

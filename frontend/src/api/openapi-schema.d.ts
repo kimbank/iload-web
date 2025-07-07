@@ -301,8 +301,7 @@ export interface components {
             releaseYear?: number;
             /** Format: int32 */
             manufactureYear?: number;
-            /** @enum {string} */
-            accidentInfo?: "NONE" | "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER";
+            accidentInfo?: ("NONE" | "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER")[];
             /** @enum {string} */
             repainted?: "NOT_REPAINTED" | "REPAINTED_WITH_SIMPLE" | "REPAINTED_WITH_BODYWORK" | "REPAINTED_WITH_RESTORATION" | "OTHER";
         };
@@ -356,8 +355,7 @@ export interface components {
             releaseYear?: number;
             /** Format: int32 */
             manufactureYear?: number;
-            /** @enum {string} */
-            accidentInfo?: "NONE" | "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER";
+            accidentInfo?: ("NONE" | "TOTAL_LOSS" | "SUBMERGED" | "STOLEN" | "OTHER")[];
             /** @enum {string} */
             repainted?: "NOT_REPAINTED" | "REPAINTED_WITH_SIMPLE" | "REPAINTED_WITH_BODYWORK" | "REPAINTED_WITH_RESTORATION" | "OTHER";
             /** @enum {string} */
@@ -449,17 +447,17 @@ export interface components {
             /** Format: int32 */
             number?: number;
             sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
             /** Format: int32 */
             numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
             empty?: boolean;
         };
         PageableObject: {
             /** Format: int64 */
             offset?: number;
             sort?: components["schemas"]["SortObject"];
-            paged?: boolean;
             unpaged?: boolean;
+            paged?: boolean;
             /** Format: int32 */
             pageNumber?: number;
             /** Format: int32 */
@@ -490,8 +488,8 @@ export interface components {
         };
         SortObject: {
             empty?: boolean;
-            sorted?: boolean;
             unsorted?: boolean;
+            sorted?: boolean;
         };
     };
     responses: never;

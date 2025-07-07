@@ -139,12 +139,8 @@ function FileUploadPageContent() {
     setPreviewDialog({ open: false, file: null });
   };
 
-  const isFormValid = () => {
-    return vehicleRegistrations.length > 0 && vehiclePhotos.length > 0;
-  };
-
   const handleSubmit = async () => {
-    if (!id || !isFormValid()) return;
+    if (!id) return;
     
     try {
       // TODO: 실제 파일 업로드 API 호출
@@ -206,10 +202,10 @@ function FileUploadPageContent() {
                           onClick={() => openPreview(registration)}
                         >
                           <div className="flex flex-row gap-3">
-                            <p className="text-sm font-medium text-black truncate w-4/5">
+                            <p className="text-sm font-medium text-black truncate w-full grow">
                               {registration.name}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm mr-2 text-gray-500 min-w-fit">
                               {registration.size}
                             </p>
                           </div>
@@ -271,10 +267,10 @@ function FileUploadPageContent() {
                           onClick={() => openPreview(photo)}
                         >
                           <div className="flex flex-row gap-3">
-                            <p className="text-sm font-medium text-black truncate w-4/5">
+                            <p className="text-sm font-medium text-black truncate w-full grow">
                               {photo.name}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm mr-2 text-gray-500 min-w-fit">
                               {photo.size}
                             </p>
                           </div>
@@ -331,7 +327,6 @@ function FileUploadPageContent() {
               type="button"
               className="grow"
               size="lg"
-              disabled={!isFormValid()}
               onClick={handleSubmit}
             >
               등록하기

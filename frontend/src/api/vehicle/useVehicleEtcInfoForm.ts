@@ -4,34 +4,34 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { log } from "@/lib/utils";
 import { useVehicle } from "@/api/vehicle/useVehicle";
-import { putVehicleBasicInfo } from "@/api/vehicle/putVehicleBasicInfo";
+import { putVehicleEtcInfo } from "@/api/vehicle/putVehicleEtcInfo";
 import {
-  VehicleBasicInfoFormData,
-  vehicleBasicInfoInputSchema,
-  transformServerToForm,
-  transformFormToApi,
+  VehicleEtcInfoFormData,
+  vehicleEtcInfoInputSchema,
+  transformServerToFormEtcInfo,
+  transformFormToApiEtcInfo,
   serverVehicleSchema,
 } from "@/api/vehicle/form/vehicle-schema";
 import {
-  getDefaultFormValues,
-  validateFormSubmission,
-  setFormErrors,
-  checkRequiredFields,
-  logFormState,
+  getDefaultEtcFormValues,
+  validateEtcFormSubmission,
+  setEtcFormErrors,
+  checkEtcRequiredFields,
+  logEtcFormState,
 } from "@/api/vehicle/form/form-utils";
 
 /**
- * 차량 기본정보 폼을 위한 커스텀 훅
+ * 차량 기타정보 폼을 위한 커스텀 훅
  */
-export const useVehicleBasicInfoForm = (vehicleId: number | null) => {
+export const useVehicleEtcInfoForm = (vehicleId: number | null) => {
   const router = useRouter();
   const { data: vehicleData, isLoading, mutate } = useVehicle(vehicleId || 0);
 
   // React Hook Form 설정
-  const form = useForm<VehicleBasicInfoFormData>({
-    resolver: zodResolver(vehicleBasicInfoInputSchema),
+  const form = useForm<VehicleEtcInfoFormData>({
+    resolver: zodResolver(vehicleEtcInfoInputSchema),
     mode: "onChange", // 실시간 validation
-    defaultValues: getDefaultFormValues(),
+    defaultValues: getDefaultEtcFormValues(),
   });
 
   // 서버 데이터로 폼 초기화
@@ -42,62 +42,62 @@ export const useVehicleBasicInfoForm = (vehicleId: number | null) => {
         const validatedServerData = serverVehicleSchema.parse(vehicleData);
         
         // 타입 안전한 변환
-        const formData = transformServerToForm(validatedServerData);
+        const formData = transformServerToFormEtcInfo(validatedServerData);
 
         log("Server data received:", vehicleData);
         log("Transformed form data:", formData);
         
-        logFormState(formData, "Server data loaded");
+        logEtcFormState(formData, "Server data loaded");
         
         // 폼 reset - 명시적으로 각 필드 설정
         Object.entries(formData).forEach(([key, value]) => {
           if (value !== undefined) {
-            form.setValue(key as keyof VehicleBasicInfoFormData, value);
+            form.setValue(key as keyof VehicleEtcInfoFormData, value);
           }
         });
         
         // 추가로 form.reset도 호출
         form.reset(formData);
       } catch (error) {
-        console.error("Failed to parse server data:", error);
+        console.error("파싱 실패:", error);
         // 서버 데이터가 잘못된 경우 기본값으로 초기화
-        form.reset(getDefaultFormValues());
+        form.reset(getDefaultEtcFormValues());
       }
     }
   }, [vehicleData, isLoading, vehicleId, form]);
 
   // 폼 제출 핸들러
-  const handleSubmit = async (data: VehicleBasicInfoFormData) => {
+  const handleSubmit = async (data: VehicleEtcInfoFormData) => {
     if (!vehicleId) {
       console.error("Vehicle ID is required");
       return;
     }
 
-    logFormState(data, "Form submission");
+    logEtcFormState(data, "Form submission");
 
     // 제출 전 validation
-    const validation = validateFormSubmission(data);
+    const validation = validateEtcFormSubmission(data);
     
     if (!validation.success) {
       console.error("Validation failed:", validation.fieldErrors);
-      setFormErrors(form, validation.fieldErrors);
+      setEtcFormErrors(form, validation.fieldErrors);
       return;
     }
 
     try {
       // API 데이터 변환
-      const apiData = transformFormToApi(validation.data);
+      const apiData = transformFormToApiEtcInfo(validation.data);
       
-      log("apiData", apiData);
+      log("apiData:", apiData);
       
       // API 호출
-      await putVehicleBasicInfo(vehicleId, apiData as any);
+      await putVehicleEtcInfo(vehicleId, apiData as any);
       
       // 성공 시 다음 페이지로 이동
-      router.push(`/register/etc-info?id=${vehicleId}`);
+      router.push(`/register/file-upload?id=${vehicleId}`);
     } catch (error) {
-      console.error("Failed to update basic info:", error);
-      // 에러 처리 (필요에 따라 toast 메시지 등)
+      log("업데이트 실패", error);
+      // TODO: 에러 처리 (필요에 따라 toast 메시지 등)
     } finally {
       // 캐시 업데이트
       mutate();
@@ -106,7 +106,7 @@ export const useVehicleBasicInfoForm = (vehicleId: number | null) => {
 
   // 현재 폼 상태
   const formState = form.watch();
-  const isFormValid = checkRequiredFields(formState);
+  const isFormValid = checkEtcRequiredFields(formState);
   const isDirty = form.formState.isDirty;
 
   return {

@@ -4,6 +4,7 @@ import dev.kimbank.iload.domain.vehicle.entity.enums.*;
 import lombok.Value;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * DTO for {@link dev.kimbank.iload.domain.vehicle.entity.RegisteredVehicle}
@@ -23,6 +24,6 @@ public class VehicleRegistrationBasicInfoRequest implements Serializable {
     Integer mileage;
     Integer releaseYear;
     Integer manufactureYear;
-    AccidentInfoEnum accidentInfo;
+    Set<AccidentInfoEnum> accidentInfo;
     RepaintedEnum repainted;
 }

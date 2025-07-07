@@ -1,12 +1,12 @@
 import { UseFormReturn } from "react-hook-form";
-import { VehicleBasicInfoFormData, vehicleBasicInfoFormSchema, VehicleBasicInfoSubmitData } from "./vehicle-schema";
-
-/**
- * SOTA 폼 관리를 위한 유틸리티
- * - TypeScript 타입 안전성 보장
- * - Zod를 통한 런타임 validation
- * - React Hook Form 최적화
- */
+import { 
+  VehicleBasicInfoFormData, 
+  vehicleBasicInfoFormSchema, 
+  VehicleBasicInfoSubmitData,
+  VehicleEtcInfoFormData,
+  vehicleEtcInfoFormSchema,
+  VehicleEtcInfoSubmitData
+} from "./vehicle-schema";
 
 // 폼 기본값 (초기 상태)
 export const getDefaultFormValues = (): VehicleBasicInfoFormData => ({
@@ -105,5 +105,81 @@ export const logFormState = (
   if (process.env.NODE_ENV === 'development') {
     console.log(`🔍 [${context}] Form data:`, formData);
     console.log(`🔍 [${context}] Required fields satisfied:`, checkRequiredFields(formData));
+  }
+};
+
+// Etc Info Form Utils
+// 폼 기본값 (초기 상태) - etc info
+export const getDefaultEtcFormValues = (): VehicleEtcInfoFormData => ({
+  driveType: undefined,
+  transmission: undefined,
+  color: undefined,
+  initialRegistrationDate: undefined,
+  specialUseHistory: undefined,
+  specialModificationHistory: undefined,
+  optionInfo: undefined,
+});
+
+// 폼 제출 시 validation - etc info
+export const validateEtcFormSubmission = (data: VehicleEtcInfoFormData): {
+  success: true;
+  data: VehicleEtcInfoSubmitData;
+} | {
+  success: false;
+  error: string;
+  fieldErrors: Record<string, string>;
+} => {
+  try {
+    const validatedData = vehicleEtcInfoFormSchema.parse(data);
+    return {
+      success: true,
+      data: validatedData,
+    };
+  } catch (error: any) {
+    const fieldErrors: Record<string, string> = {};
+    
+    if (error.errors) {
+      error.errors.forEach((err: any) => {
+        if (err.path && err.path.length > 0) {
+          fieldErrors[err.path[0]] = err.message;
+        }
+      });
+    }
+    
+    return {
+      success: false,
+      error: "입력한 정보를 확인해주세요",
+      fieldErrors,
+    };
+  }
+};
+
+// 폼 에러 설정 헬퍼 - etc info
+export const setEtcFormErrors = (
+  form: UseFormReturn<VehicleEtcInfoFormData>,
+  fieldErrors: Record<string, string>
+) => {
+  Object.entries(fieldErrors).forEach(([field, message]) => {
+    form.setError(field as keyof VehicleEtcInfoFormData, {
+      type: "manual",
+      message,
+    });
+  });
+};
+
+// 필수 필드 체크 (UI 비활성화 등에 사용) - etc info (현재는 필수 필드 없음)
+export const checkEtcRequiredFields = (data: VehicleEtcInfoFormData): boolean => {
+  // etc-info 페이지는 모든 필드가 선택사항이므로 항상 true 반환
+  return true;
+};
+
+// 폼 상태 로깅 (개발용) - etc info
+export const logEtcFormState = (
+  formData: VehicleEtcInfoFormData,
+  context: string = "Etc Form State"
+) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[${context}] Form data:`, formData);
+    console.log(`[${context}] Required fields satisfied:`, checkEtcRequiredFields(formData));
   }
 };

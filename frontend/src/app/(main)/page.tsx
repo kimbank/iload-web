@@ -16,7 +16,7 @@ export default function Home() {
 
         <section className="p-6">
           {/* 최근 등록한 차량 */}
-          <GridList title={"최근 등록한 차량"} type={"recent-added"} />
+          <GridList title={"최근 등록한 차량"} type={"latest-registered"} />
           <Divider className="my-14 -mx-6" />
 
           {/* 지금 가장 가격이 높은 차량이에요. */}
