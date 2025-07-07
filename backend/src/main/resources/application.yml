@@ -32,6 +32,10 @@ spring:
     bucket: ${SPRING_S3_BUCKET}
     access-key: ${SPRING_S3_ACCESS_KEY}
     secret-key: ${SPRING_S3_SECRET_KEY}
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 springdoc:
   api-docs:
