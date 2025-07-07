@@ -44,6 +44,7 @@ services:
           memory: 512M
         reservations:
           memory: 256M
+    command: server /data --console-address ":9001"
     restart: unless-stopped
 
   backend:
