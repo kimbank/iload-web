@@ -24,12 +24,14 @@ services:
     image: minio/minio
     container_name: minio
     environment:
-      MINIO_ROOT_USER: ${SPRING_S3_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${SPRING_S3_SECRET_KEY}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       # docker exec -it minio /bin/sh
       # mc alias list
-      # mc alias set local http://localhost:9000 'minio-root-user' 'minio-root-password'
-      # mc anonymous set public local/bucket
+      # mc alias set local http://localhost:9000
+      # > Enter Access Key: ${MINIO_ROOT_USER}
+      # > Enter Secret Key: ${MINIO_ROOT_PASSWORD}
+      # mc anonymous set public local/${SPRING_S3_BUCKET}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -96,3 +98,4 @@ services:
 
 volumes:
   db-data:
+  s3-data:
