@@ -24,6 +24,47 @@ public class VehicleQueryRepository {
         this.jpaQueryFactory = new JPAQueryFactory(entityManager);
     }
 
+    // 사용자 차량 카드 목록 조회
+    public Page<RegisteredVehicleCardResponse> findRegisteredVehicleCardsByUserId(Long userId, Pageable pageable) {
+        QRegisteredVehicle registeredVehicle = QRegisteredVehicle.registeredVehicle;
+        QRegisteredVehiclePhoto registeredVehiclePhoto = QRegisteredVehiclePhoto.registeredVehiclePhoto;
+
+        List<RegisteredVehicleCardResponse> content = jpaQueryFactory
+                .select(Projections.constructor(RegisteredVehicleCardResponse.class,
+                        registeredVehicle.id,
+                        registeredVehicle.users.id,
+                        registeredVehicle.users.username,
+                        registeredVehicle.manufacturer,
+                        registeredVehicle.releaseYear,
+                        registeredVehicle.mileage,
+                        registeredVehicle.sellingPrice,
+                        registeredVehiclePhoto.fileUrl,
+                        registeredVehicle.createdAt,
+                        registeredVehicle.updatedAt
+                ))
+                .from(registeredVehicle)
+                .leftJoin(registeredVehiclePhoto)
+                .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
+                        .and(registeredVehiclePhoto.id.eq(
+                                jpaQueryFactory.select(registeredVehiclePhoto.id.max())
+                                        .from(registeredVehiclePhoto)
+                                        .where(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id))
+                        )))
+                .where(registeredVehicle.users.id.eq(userId))
+                .orderBy(registeredVehicle.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = jpaQueryFactory
+                .select(registeredVehicle.count())
+                .from(registeredVehicle)
+                .where(registeredVehicle.users.id.eq(userId))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
     // 최근 등록 차량 조회
     public List<RegisteredVehicleCardResponse> findLatestRegisteredVehicle() {
         QRegisteredVehicle registeredVehicle = QRegisteredVehicle.registeredVehicle;

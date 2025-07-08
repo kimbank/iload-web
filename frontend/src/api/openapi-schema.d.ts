@@ -208,6 +208,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/vehicle/my": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 사용자 차량 목록 조회
+         * @description 사용자의 차량 등록 목록을 조회합니다. 차량 등록이 없는 경우 빈 목록을 반환합니다.
+         */
+        get: operations["getMyVehicleCards"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/vehicle/in-progress-cards": {
         parameters: {
             query?: never;
@@ -467,6 +487,67 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
         };
+        Pageable: {
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            sort?: string[];
+        };
+        PageRegisteredVehicleCardResponse: {
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+            /** Format: int32 */
+            size?: number;
+            content?: components["schemas"]["RegisteredVehicleCardResponse"][];
+            /** Format: int32 */
+            number?: number;
+            sort?: components["schemas"]["SortObject"];
+            pageable?: components["schemas"]["PageableObject"];
+            /** Format: int32 */
+            numberOfElements?: number;
+            empty?: boolean;
+        };
+        PageableObject: {
+            /** Format: int64 */
+            offset?: number;
+            sort?: components["schemas"]["SortObject"];
+            paged?: boolean;
+            unpaged?: boolean;
+            /** Format: int32 */
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+        };
+        RegisteredVehicleCardResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            usersId?: number;
+            username?: string;
+            /** @enum {string} */
+            manufacturer?: "KIA" | "HYUNDAI" | "GENESIS" | "CHEVROLET" | "RENAULT_KOREA" | "KG_MOBILITY" | "OTHER";
+            /** Format: int32 */
+            releaseYear?: number;
+            /** Format: int32 */
+            mileage?: number;
+            /** Format: int32 */
+            price?: number;
+            thumbnailUrl?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        SortObject: {
+            empty?: boolean;
+            sorted?: boolean;
+            unsorted?: boolean;
+        };
         RegisterVehicleInProgressCardResponse: {
             /** Format: int64 */
             id?: number;
@@ -519,67 +600,6 @@ export interface components {
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
-        };
-        Pageable: {
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            size?: number;
-            sort?: string[];
-        };
-        PageRegisteredVehicleCardResponse: {
-            /** Format: int64 */
-            totalElements?: number;
-            /** Format: int32 */
-            totalPages?: number;
-            first?: boolean;
-            last?: boolean;
-            /** Format: int32 */
-            size?: number;
-            content?: components["schemas"]["RegisteredVehicleCardResponse"][];
-            /** Format: int32 */
-            number?: number;
-            sort?: components["schemas"]["SortObject"];
-            /** Format: int32 */
-            numberOfElements?: number;
-            pageable?: components["schemas"]["PageableObject"];
-            empty?: boolean;
-        };
-        PageableObject: {
-            /** Format: int64 */
-            offset?: number;
-            sort?: components["schemas"]["SortObject"];
-            paged?: boolean;
-            unpaged?: boolean;
-            /** Format: int32 */
-            pageNumber?: number;
-            /** Format: int32 */
-            pageSize?: number;
-        };
-        RegisteredVehicleCardResponse: {
-            /** Format: int64 */
-            id?: number;
-            /** Format: int64 */
-            usersId?: number;
-            username?: string;
-            /** @enum {string} */
-            manufacturer?: "KIA" | "HYUNDAI" | "GENESIS" | "CHEVROLET" | "RENAULT_KOREA" | "KG_MOBILITY" | "OTHER";
-            /** Format: int32 */
-            releaseYear?: number;
-            /** Format: int32 */
-            mileage?: number;
-            /** Format: int32 */
-            price?: number;
-            thumbnailUrl?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        SortObject: {
-            empty?: boolean;
-            sorted?: boolean;
-            unsorted?: boolean;
         };
         RegisteredVehicleFileSummaryResponse: {
             /** Format: int64 */
@@ -923,6 +943,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RegisteredVehicle"];
+                };
+            };
+        };
+    };
+    getMyVehicleCards: {
+        parameters: {
+            query: {
+                pageable: components["schemas"]["Pageable"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageRegisteredVehicleCardResponse"];
                 };
             };
         };

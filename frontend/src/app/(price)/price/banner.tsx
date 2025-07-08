@@ -25,9 +25,9 @@ export function Banner() {
         </div>
       </div>
       <img
-        src="/banner/car.png"
+        src="/assets/price-car.png"
         alt="차량 일러스트"
-        className="block absolute right-0 bottom-0 w-34 md:w-40 h-auto object-cover"
+        className="block absolute right-0 bottom-0 w-32 md:w-40 h-auto object-cover"
       />
     </section>
   );

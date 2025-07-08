@@ -1,16 +1,14 @@
 import useSWRInfinite from "swr/infinite";
 import { authedFetcher } from "@/api/base/swrFetcher";
 
-const basePath = "/api/main/registered-vehicles";
+const basePath = "/api/vehicle/my";
 
-interface RegisteredVehiclesParams {
-  noAccident?: boolean;
-  noPaint?: boolean;
+interface MyVehiclesParams {
   size?: number;
 }
 
-export const usePageRegisteredVehicles = (params: RegisteredVehiclesParams = {}) => {
-  const { noAccident = false, noPaint = false, size = 4 } = params;
+export const useMyVehicles = (params: MyVehiclesParams = {}) => {
+  const { size = 4 } = params;
 
   const getKey = (pageIndex: number, previousPageData: any) => {
     // 이전 페이지 데이터가 있고, 마지막 페이지라면 null을 반환하여 더 이상 요청하지 않음
@@ -18,8 +16,6 @@ export const usePageRegisteredVehicles = (params: RegisteredVehiclesParams = {})
     
     // 첫 번째 페이지이거나 다음 페이지가 있을 때의 key 생성
     const queryParams = new URLSearchParams({
-      noAccident: noAccident.toString(),
-      noPaint: noPaint.toString(),
       page: pageIndex.toString(),
       size: size.toString(),
     });
@@ -64,4 +60,4 @@ export const usePageRegisteredVehicles = (params: RegisteredVehiclesParams = {})
   };
 };
 
-export default usePageRegisteredVehicles;
+export default useMyVehicles;

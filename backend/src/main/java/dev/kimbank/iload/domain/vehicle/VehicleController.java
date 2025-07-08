@@ -9,6 +9,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +26,25 @@ import java.util.List;
 @Tag(name="Vehicle", description = "차량 관련 API")
 class VehicleController {
     private final VehicleService vehicleService;
+
+    @GetMapping("/my")
+    @Operation(summary = "사용자 차량 목록 조회",
+            description = "사용자의 차량 등록 목록을 조회합니다. 차량 등록이 없는 경우 빈 목록을 반환합니다.")
+    public Page<RegisteredVehicleCardResponse> getMyVehicleCards(
+            @AuthedUser Long userId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return vehicleService.getMyVehicleCards(userId, pageable);
+    }
+
+    @DeleteMapping("/my")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "사용자 차량 삭제",
+            description = "사용자의 차량 등록을 ID로 삭제합니다. 차량 등록이 없는 경우 404 에러를 반환합니다.")
+    public void deleteMyVehicle(
+            @AuthedUser Long userId,
+            @RequestParam @NotNull @Positive Long id) {
+        vehicleService.deleteMyVehicle(userId, id);
+    }
 
     @GetMapping("/in-progress-cards")
     @Operation(summary = "미완성 차량 등록 카드 조회",

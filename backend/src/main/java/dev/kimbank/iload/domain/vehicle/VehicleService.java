@@ -5,8 +5,13 @@ import dev.kimbank.iload.domain.users.entity.Users;
 import dev.kimbank.iload.domain.vehicle.dto.*;
 import dev.kimbank.iload.domain.vehicle.entity.*;
 import dev.kimbank.iload.domain.vehicle.repository.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +23,26 @@ class VehicleService {
     private final RegisteredVehicleRepository registeredVehicleRepository;
     private final UsersRepository usersRepository;
     private final ModelMapper modelMapper;
+
+    @Value("${spring.s3.endpoint}")
+    private String s3Endpoint;
+
+    // 사용자 차량 목록 조회
+    public Page<RegisteredVehicleCardResponse> getMyVehicleCards(Long userId, Pageable pageable) {
+        return vehicleQueryRepository
+                .findRegisteredVehicleCardsByUserId(userId, pageable)
+                .map(card -> RegisteredVehicleCardResponse.from(card, s3Endpoint));
+    }
+
+    public void deleteMyVehicle(Long userId, Long id) {
+        RegisteredVehicle vehicle = registeredVehicleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("등록 차량을 찾을 수 없음: " + id));
+
+        // 차량이 해당 유저의 차량인지 확인
+        validateOwnership(vehicle, userId);
+
+        registeredVehicleRepository.delete(vehicle);
+    }
 
     // 비어있는 "등록 차량" 생성
     public Long createEmptyRegisteredVehicle(Long userId) {
