@@ -11,7 +11,7 @@ export function Banner() {
         
         <div
           className="flex items-center text-gray-50 hover:text-gray-300 transition-colors cursor-pointer group mt-1"
-          onClick={() => {}}
+          onClick={() => (window.location.href = "/price/scratch")}
         >
           <span className="md:text-lg text-base font-medium">지금 바로 조회하기</span>
           <svg 

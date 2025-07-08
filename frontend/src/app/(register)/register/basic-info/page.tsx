@@ -27,7 +27,7 @@ import { useAuthStore } from "@/store/auth";
 import { AuthAlertDialog } from "@/components/auth-alert-dialog";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { useVehicleBasicInfoForm } from "@/api/vehicle/useVehicleBasicInfoForm";
+import { useVehicleBasicInfoForm } from "@/api/vehicle/form/useVehicleBasicInfoForm";
 import {
   MANUFACTURERS,
   VEHICLE_TYPES,

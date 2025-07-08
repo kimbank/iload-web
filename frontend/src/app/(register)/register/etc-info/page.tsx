@@ -33,7 +33,7 @@ import { useAuthStore } from "@/store/auth";
 import { AuthAlertDialog } from "@/components/auth-alert-dialog";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { useVehicleEtcInfoForm } from "@/api/vehicle/useVehicleEtcInfoForm";
+import { useVehicleEtcInfoForm } from "@/api/vehicle/form/useVehicleEtcInfoForm";
 import {
   DRIVE_TYPES,
   TRANSMISSION_TYPES,
