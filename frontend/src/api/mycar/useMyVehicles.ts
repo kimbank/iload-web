@@ -25,11 +25,7 @@ export const useMyVehicles = (params: MyVehiclesParams = {}) => {
 
   const { data, error, isLoading, isValidating, mutate, size: currentSize, setSize } = useSWRInfinite(
     getKey,
-    authedFetcher,
-    {
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-    }
+    authedFetcher
   );
 
   // 모든 페이지의 content를 하나의 배열로 합치기

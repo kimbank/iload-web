@@ -40,15 +40,15 @@ export default function BannerCarousel() {
       return;
     }
 
-    // const interval = setInterval(() => {
-    //   if (current === count) {
-    //     api.scrollTo(0);
-    //   } else {
-    //     api.scrollNext();
-    //   }
-    // }, 15000); // 15초마다 자동 전환
-    //
-    // return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      if (current === count) {
+        api.scrollTo(0);
+      } else {
+        api.scrollNext();
+      }
+    }, 10000); // 10 초마다 자동 전환
+
+    return () => clearInterval(interval);
   }, [api, current, count]);
 
   // Keyboard navigation

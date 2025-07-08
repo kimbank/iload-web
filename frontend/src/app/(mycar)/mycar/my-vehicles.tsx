@@ -5,9 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useMyVehicles } from "@/api/mycar/useMyVehicles";
 import { components } from "@/api/openapi-schema";
 import { MANUFACTURERS } from "@/api/vehicle/form/vehicle-constants";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent,
