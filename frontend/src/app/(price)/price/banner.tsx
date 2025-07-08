@@ -2,34 +2,34 @@
 
 export function Banner() {
   return (
-    <div className="bg-gray-900 text-white rounded-lg p-6 mb-6 relative overflow-hidden h-44">
-      <div className="flex justify-between items-center">
-        <div className="z-10">
-          <h2 className="text-2xl mb-2">
-            미등록 차량을<br />
-            간단하게 조회할 수 있어요
-          </h2>
-          <button
-            className="flex items-center text-base text-white hover:text-white hover:cursor-pointer"
-            onClick={() => {}}
+    <section className="relative w-full h-full overflow-hidden bg-[#000000] text-white p-4 md:p-6 flex rounded-lg mb-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="md:text-xl text-lg font-semibold">
+          미등록 차량을<br />
+          간단하게 조회할 수 있어요
+        </h1>
+        
+        <div
+          className="flex items-center text-gray-50 hover:text-gray-300 transition-colors cursor-pointer group mt-1"
+          onClick={() => {}}
+        >
+          <span className="md:text-lg text-base font-medium">지금 바로 조회하기</span>
+          <svg 
+            className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform" 
+            fill="none" 
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            지금 바로 조회하기
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </div>
-        {/* 차량 일러스트 */}
-        <img
-          src="/banner/car.png"
-          alt="차량 일러스트"
-          className="w-auto object-contain absolute right-4 top-[100px] transform -translate-y-1/2 z-0"
-        />
-        {/* <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <div className="w-24 h-12 bg-gray-400 rounded-lg opacity-80"></div>
-        </div> */}
       </div>
-    </div>
+      <img
+        src="/banner/car.png"
+        alt="차량 일러스트"
+        className="block absolute right-0 bottom-0 w-34 md:w-40 h-auto object-cover"
+      />
+    </section>
   );
 }
 

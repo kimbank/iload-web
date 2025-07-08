@@ -130,7 +130,7 @@ const CountryDetailCard = ({ country }: CountryDetailCardProps) => {
         </div>
       </div>
 
-      <Divider className="my-14 -mx-6" />
+      <Divider className="my-14 -mx-4" />
     </div>
   );
 };

@@ -15,9 +15,11 @@ export default function MyCar() {
   return (
     <div className="min-h-screen">
       <AppBar />
-      <main className="flex-col justify-center items-center pt-14 pb-20">
+
+      <main className="flex-col justify-center items-center pt-14 pb-20 px-4">
         <UserProfile />
       </main>
+
       <BottomNavigation />
     </div>
   );

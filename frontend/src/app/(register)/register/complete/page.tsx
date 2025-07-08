@@ -26,7 +26,7 @@ function RegisterCompleteContent() {
 
           <div className=" pt-25 text-center">
             <img
-              src="/assets/black-car_241x241.png"
+              src="/assets/complete-car.png"
               alt="차량 등록 완료 이미지"
               className="mx-auto max-w-60"
             />
