@@ -1,6 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export function Banner() {
+  const router = useRouter();
+
   return (
     <section className="relative w-full h-full overflow-hidden bg-[#000000] text-white p-4 md:p-6 flex rounded-lg mb-6">
       <div className="flex flex-col gap-2">
@@ -11,7 +15,7 @@ export function Banner() {
         
         <div
           className="flex items-center text-gray-50 hover:text-gray-300 transition-colors cursor-pointer group mt-1"
-          onClick={() => (window.location.href = "/price/scratch")}
+          onClick={() => router.push("/price/scratch")}
         >
           <span className="md:text-lg text-base font-medium">지금 바로 조회하기</span>
           <svg 

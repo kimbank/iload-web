@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import AppBar from "@/components/app-bar";
 import BottomNavigation from "@/components/bottom-navigation";
 import Banner from "./banner";
@@ -92,6 +93,7 @@ function VehicleCard({
 }
 
 export default function PricePage() {
+  const router = useRouter();
   const { vehicles, isLoading, isValidating, canLoadMore, loadMore, isError } = 
     usePageRegisteredVehicles({
       noAccident: false,
@@ -198,7 +200,7 @@ export default function PricePage() {
             disabled={selectedVehicle === undefined}
             onClick={() => {
               if (selectedVehicle !== undefined) {
-                window.location.href = `/price/detail?id=${selectedVehicle}`;
+                router.push(`/price/detail?id=${selectedVehicle}`);
               }
             }}
           >

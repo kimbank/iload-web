@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyVehicles } from "@/api/mycar/useMyVehicles";
 import { components } from "@/api/openapi-schema";
@@ -49,6 +50,7 @@ function VehicleCard({
   lastVehicleElementRef?: (node: HTMLDivElement | null) => void;
   handleDeleteVehicle: (vehicleId: number) => void;
 }) {
+  const router = useRouter();
   const [imageLoaded, setImageLoaded] = useState(false);
 
   if (loading) {
@@ -104,7 +106,7 @@ function VehicleCard({
               {/* 수정하기 */}
               <button
                 className="text-gray-600"
-                onClick={() => window.location.href=(`/register/basic-info?id=${vehicle.id}`)}
+                onClick={() => router.push(`/register/basic-info?id=${vehicle.id}`)}
               >
                 수정하기
               </button>
