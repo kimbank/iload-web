@@ -7,7 +7,7 @@ export default function BottomNavigation() {
   const pathname = usePathname()
 
   return (
-    <div className="fixed bottom-0 z-50 w-full max-w-2xl min-w-xs bg-white border-t border-gray-200">
+    <div className="fixed bottom-0 z-50 w-full max-w-2xl min-w-xs bg-white border-t border-gray-200 pb-safe">
       <div className="flex justify-around items-center h-15">
         <Link href="/" className="flex flex-col items-center">
           {pathname === '/' ? (
