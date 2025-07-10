@@ -36,6 +36,7 @@ import {
   ACCIDENT_INFO,
   REPAINTED_TYPES,
 } from "@/api/vehicle/form/vehicle-constants";
+import RegisterStep from "../register-step";
 
 function RegisterPageContent() {
   const { isAuthenticated } = useAuthStore();
@@ -64,21 +65,7 @@ function RegisterPageContent() {
       <AppBar />
       <main className="flex-col justify-center items-center pt-14 pb-20">
         <div className="p-4">
-          <div className="flex justify-center items-center mb-8">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white">
-                1
-              </div>
-              <div className="w-24 h-px bg-gray-300"></div>
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
-                2
-              </div>
-              <div className="w-24 h-px bg-gray-300"></div>
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
-                3
-              </div>
-            </div>
-          </div>
+          <RegisterStep id={Number(id)} step={1} />
 
           <h1 className="text-2xl font-bold mb-4">
             먼저 차량 기본 정보를

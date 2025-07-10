@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import ImageViewerModal from '@/components/image-viewer-modal';
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import ImageViewerModal from "@/components/image-viewer-modal";
 
 interface CarPhotoCarouselProps {
   photos: string[];
@@ -14,11 +14,11 @@ const CarPhotoCarousel = ({ photos }: CarPhotoCarouselProps) => {
   const totalImages = photos.length;
 
   const nextImage = () => {
-    setCurrentIndex(prev => prev < totalImages - 1 ? prev + 1 : 0);
+    setCurrentIndex((prev) => (prev < totalImages - 1 ? prev + 1 : 0));
   };
 
   const prevImage = () => {
-    setCurrentIndex(prev => prev > 0 ? prev - 1 : totalImages - 1);
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : totalImages - 1));
   };
 
   const openModal = () => {
@@ -44,22 +44,23 @@ const CarPhotoCarousel = ({ photos }: CarPhotoCarouselProps) => {
 
   return (
     <>
-      <div className="relative mb-6 bg-gray-900 rounded-lg overflow-hidden">
-        <img 
-          src={photos[currentIndex] || '/assests/error-image.png'} 
+      <div className="relative mb-6 bg-gray-900 border border-gray-300 rounded-lg overflow-hidden">
+        <img
+          src={photos[currentIndex] || "/assests/error-image.png"}
           alt={`차량 사진 ${currentIndex + 1}`}
           className="w-full h-64 object-cover cursor-pointer"
           onClick={openModal}
           onError={(e) => {
             // 이미지 로드 실패시 기본 이미지로 대체
             const target = e.target as HTMLImageElement;
-            target.src = '/assets/black-car_241x241.png';
+            target.src = "/assets/black-car_241x241.png";
           }}
         />
         {/* Filter Icon */}
         <button className="absolute top-2 right-2 bg-white rounded-full size-7 p-1">
           <span className="icon-[mage--filter] w-4 h-4" />
         </button>
+        {/* <span className="absolute top-2 right-2 bg-white rounded-full size-7 p-1 icon-[mage--filter] w-4 h-4" /> */}
 
         {/* Image Navigation */}
         {totalImages > 1 && (
@@ -67,7 +68,9 @@ const CarPhotoCarousel = ({ photos }: CarPhotoCarouselProps) => {
             <button onClick={prevImage}>
               <ChevronLeft size={16} />
             </button>
-            <span>{currentIndex + 1} / {totalImages}</span>
+            <span>
+              {currentIndex + 1} / {totalImages}
+            </span>
             <button onClick={nextImage}>
               <ChevronRight size={16} />
             </button>
@@ -82,7 +85,7 @@ const CarPhotoCarousel = ({ photos }: CarPhotoCarouselProps) => {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                  index === currentIndex ? "bg-white" : "bg-white bg-opacity-50"
                 }`}
               />
             ))}

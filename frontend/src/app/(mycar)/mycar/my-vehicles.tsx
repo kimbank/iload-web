@@ -93,19 +93,21 @@ function VehicleCard({
           </div>
         )}
         <Popover>
-          <PopoverTrigger className="block absolute top-2 right-2 w-6 h-6 rounded-full bg-white" />
+          <PopoverTrigger className="absolute top-2 right-2 bg-white rounded-full size-7 p-1 cursor-pointer">
+            <span className="icon-[lucide--ellipsis] w-4 h-4" />
+          </PopoverTrigger>
           <PopoverContent className="w-fit py-2">
             <div className="flex flex-col gap-2">
               {/* 삭제하기 */}
               <button
-                className="text-gray-600"
+                className="text-gray-600 cursor-pointer"
                 onClick={() => handleDeleteVehicle(vehicle.id || -1)}
               >
                 삭제하기
               </button>
               {/* 수정하기 */}
               <button
-                className="text-gray-600"
+                className="text-gray-600 cursor-pointer"
                 onClick={() => router.push(`/register/basic-info?id=${vehicle.id}`)}
               >
                 수정하기

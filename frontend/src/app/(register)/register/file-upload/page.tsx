@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { X } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { AuthAlertDialog } from "@/components/auth-alert-dialog";
 import AppBar from "@/components/app-bar";
 import BottomNavigation from "@/components/bottom-navigation";
+import RegisterStep from "../register-step";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,9 +21,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense } from "react";
-import { X } from "lucide-react";
 import { uploadVehicleRegistrationCertificate, deleteVehicleRegistrationCertificate } from "@/api/file-upload/certificates";
 import { uploadVehiclePhoto, deleteVehiclePhoto } from "@/api/file-upload/photos";
 import { useVehicleRegistrationCertificates } from "@/api/file-upload/useVehicleRegistrationCertificates";
@@ -84,7 +85,7 @@ function FileUploadPageContent() {
       }));
       setVehicleRegistrations([...converted, ...newVehicleRegistrations]);
     }
-  }, [existingCertificates, newVehicleRegistrations]);
+  }, [existingCertificates]);
 
   useEffect(() => {
     if (existingPhotos) {
@@ -97,7 +98,7 @@ function FileUploadPageContent() {
       }));
       setVehiclePhotos([...converted, ...newVehiclePhotos]);
     }
-  }, [existingPhotos, newVehiclePhotos]);
+  }, [existingPhotos]);
 
   if (!isAuthenticated) {
     return <AuthAlertDialog />;
@@ -248,21 +249,7 @@ function FileUploadPageContent() {
       <AppBar />
       <main className="flex-col justify-center items-center pt-14 pb-20">
         <div className="p-4">
-          <div className="flex justify-center items-center mb-8">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
-                1
-              </div>
-              <div className="w-24 h-px bg-gray-300"></div>
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
-                2
-              </div>
-              <div className="w-24 h-px bg-gray-300"></div>
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white">
-                3
-              </div>
-            </div>
-          </div>
+          <RegisterStep id={Number(id)} step={3} />
 
           <h1 className="text-2xl font-bold mb-4">
             마지막으로
