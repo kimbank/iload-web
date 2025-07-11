@@ -1,6 +1,7 @@
 package dev.kimbank.iload.domain.vehicle.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import dev.kimbank.iload.domain.file.entity.QRegisteredVehiclePhoto;
@@ -43,6 +44,10 @@ public class VehicleQueryRepository {
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
+                .where(registeredVehicle.users.id.eq(userId),
+                        // 작성 완료 조건
+                        getCompletedVehicleConditions(registeredVehicle)
+                )
                 .leftJoin(registeredVehiclePhoto)
                 .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
                         .and(registeredVehiclePhoto.id.eq(
@@ -50,7 +55,6 @@ public class VehicleQueryRepository {
                                         .from(registeredVehiclePhoto)
                                         .where(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id))
                         )))
-                .where(registeredVehicle.users.id.eq(userId))
                 .orderBy(registeredVehicle.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -84,6 +88,10 @@ public class VehicleQueryRepository {
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
+                .where(
+                        // 작성 완료 조건
+                        getCompletedVehicleConditions(registeredVehicle)
+                )
                 .leftJoin(registeredVehiclePhoto)
                 .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
                     .and(registeredVehiclePhoto.id.eq(
@@ -115,6 +123,10 @@ public class VehicleQueryRepository {
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
+                .where(
+                        // 작성 완료 조건
+                        getCompletedVehicleConditions(registeredVehicle)
+                )
                 .leftJoin(registeredVehiclePhoto)
                 .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
                         .and(registeredVehiclePhoto.id.eq(
@@ -147,6 +159,10 @@ public class VehicleQueryRepository {
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
+                .where(
+                        // 작성 완료 조건
+                        getCompletedVehicleConditions(registeredVehicle)
+                )
                 .leftJoin(registeredVehiclePhoto)
                 .on(registeredVehiclePhoto.registeredVehicle.id.eq(registeredVehicle.id)
                         .and(registeredVehiclePhoto.id.eq(
@@ -200,8 +216,24 @@ public class VehicleQueryRepository {
                         registeredVehicle.updatedAt
                 ))
                 .from(registeredVehicle)
+                .where(
+                        // 작성 미완료 조건
+                        getCompletedVehicleConditions(registeredVehicle).not()
+
+                )
                 .where(registeredVehicle.users.id.eq(userId))
                 .orderBy(registeredVehicle.createdAt.desc())
                 .fetch();
+    }
+
+    private BooleanExpression getCompletedVehicleConditions(QRegisteredVehicle registeredVehicle) {
+        return registeredVehicle.displacement.isNotNull()
+                .and(registeredVehicle.seaterCount.isNotNull())
+                .and(registeredVehicle.fuelType.isNotNull())
+                .and(registeredVehicle.releasePrice.isNotNull())
+                .and(registeredVehicle.mileage.isNotNull())
+                .and(registeredVehicle.releaseYear.isNotNull())
+                .and(registeredVehicle.accidentInfo.isNotEmpty())
+                .and(registeredVehicle.repainted.isNotNull());
     }
 }
